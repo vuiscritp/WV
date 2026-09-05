@@ -24,6 +24,27 @@
     --safe-t: env(safe-area-inset-top, 0px);
     --safe-b: env(safe-area-inset-bottom, 0px);
   }
+
+  /* 4 theme đồng bộ với app native (ThemeManager.kt): morning/day/night/midnight.
+     Android gọi window.EgeoHome.setTheme(name) sau khi trang tải xong, đặt
+     data-theme lên <html> để đổi toàn bộ biến màu bên dưới. */
+  html[data-theme="day"] {
+    --bg: #f8f9fb; --surface: #fff; --text: #202124; --text2: #5f6368; --text3: #80868b; --border: #dadce0;
+  }
+  html[data-theme="morning"] {
+    --bg: #fff3e0; --surface: #fffaf5; --text: #3e2412; --text2: #6d4c34; --text3: #8a6a52; --border: #f0dcc8;
+    --shadow: 0 1px 6px rgba(110,60,20,.12); --shadow2: 0 4px 16px rgba(110,60,20,.16);
+  }
+  html[data-theme="night"] {
+    --bg: #1e1512; --surface: #2a1e19; --text: #f5e9e0; --text2: #d8c3b5; --text3: #b8a79c; --border: #4a3830;
+    --shadow: 0 1px 6px rgba(0,0,0,.35); --shadow2: 0 4px 16px rgba(0,0,0,.45);
+  }
+  html[data-theme="midnight"] {
+    --bg: #000; --surface: #140a07; --text: #f0e4dc; --text2: #b8a79c; --text3: #8f7d72; --border: #2a1a12;
+    --shadow: 0 1px 6px rgba(0,0,0,.5); --shadow2: 0 4px 16px rgba(0,0,0,.6);
+  }
+  html, body { transition: background-color .2s ease, color .2s ease; }
+
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { height:100%; width:100%; font-family:"Roboto",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
   body { display:flex; flex-direction:column; padding-top:var(--safe-t); }
@@ -352,8 +373,22 @@
   document.getElementById("voiceClose").addEventListener("click", stopVoice);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) stopVoice(); });
 
+  // Theme: 4 mức morning/day/night/midnight, đồng bộ với app native.
+  // Trước khi Android kịp gọi setTheme(...) (ngay sau khi trang load xong),
+  // dùng tạm prefers-color-scheme (chỉ có sáng/tối) để tránh nháy trắng.
+  function applyTheme(name) {
+    var valid = ["morning", "day", "night", "midnight"];
+    document.documentElement.setAttribute("data-theme", valid.indexOf(name) >= 0 ? name : "day");
+  }
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    applyTheme("night");
+  } else {
+    applyTheme("day");
+  }
+
   window.EgeoHome = {
-    setQuery: (t) => { homeQ.value = t || ""; }
+    setQuery: (t) => { homeQ.value = t || ""; },
+    setTheme: applyTheme
   };
 })();
 </script>

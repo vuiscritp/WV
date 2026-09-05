@@ -2,12 +2,15 @@ package egeo.com.browser
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -19,9 +22,12 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import egeo.com.browser.databinding.ActivityMainBinding
 import egeo.com.browser.databinding.ItemTabChipBinding
@@ -44,7 +50,21 @@ open class MainActivity : AppCompatActivity() {
 
     private val recordAudioLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { /* Kết quả sẽ được dùng ở lần bấm mic tiếp theo (đã cấp quyền hay chưa). */ }
+    ) { /* Dùng ở lần bấm mic/mở web tiếp theo (đã cấp quyền hay chưa). */ }
+
+    private val voiceSearchLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val text = result.data
+                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                ?.firstOrNull()
+            if (!text.isNullOrBlank()) {
+                binding.editAddress.setText(text)
+                submitAddressBar()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         appliedThemeAtCreate = ThemeManager.resolveEffectiveTheme(this)
@@ -63,8 +83,13 @@ open class MainActivity : AppCompatActivity() {
         setupAddressBar()
         setupNavigationButtons()
         setupBackNavigation()
+        requestStartupPermissionsIfNeeded()
 
-        if (savedInstanceState == null) {
+        // Dùng tabCount thay vì savedInstanceState == null: sau khi recreate()
+        // (đổi theme trong Cài đặt) toàn bộ tab cũ đã bị huỷ ở onDestroy(), nên
+        // luôn phải đảm bảo có ít nhất 1 tab, kể cả khi Android coi đây là
+        // "khôi phục" activity (savedInstanceState != null).
+        if (tabManager.tabCount == 0) {
             openNewTab()
         }
     }
@@ -92,6 +117,18 @@ open class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private fun requestStartupPermissionsIfNeeded() {
+        // Chỉ xin quyền cho tính năng THẬT SỰ đang có (tìm kiếm bằng giọng nói).
+        // Các quyền khác (thông báo, overlay, chạy nền...) sẽ chỉ xin khi tính
+        // năng tương ứng thực sự được xây ở phase sau - tránh xin quyền cho
+        // tính năng chưa tồn tại.
+        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
     // ---------------------------------------------------------------------
     // Tab
     // ---------------------------------------------------------------------
@@ -107,6 +144,7 @@ open class MainActivity : AppCompatActivity() {
     private fun onTabsChanged() {
         renderTabStrip()
         bindCurrentTabToUi()
+        binding.btnTabCount.text = tabManager.tabCount.toString()
     }
 
     private fun bindCurrentTabToUi() {
@@ -133,6 +171,20 @@ open class MainActivity : AppCompatActivity() {
             }
             binding.tabStrip.addView(chip.root)
         }
+    }
+
+    private fun showTabSwitcher() {
+        val tabs = tabManager.allTabs()
+        if (tabs.isEmpty()) return
+        val titles = tabs.map { if (it.isHomePage) "Trang mới" else it.title.ifBlank { it.url } }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.tabs_dialog_title)
+            .setSingleChoiceItems(titles, tabManager.currentIndexValue) { dialog, which ->
+                tabManager.switchTo(which)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // ---------------------------------------------------------------------
@@ -201,6 +253,11 @@ open class MainActivity : AppCompatActivity() {
                 val tab = tabManager.allTabs().find { it.webView === view } ?: return
                 tab.url = url.orEmpty()
                 tab.title = view.title?.takeIf { it.isNotBlank() } ?: tab.url
+
+                if (tab.isHomePage && tab.url.startsWith(HOME_URL)) {
+                    applyThemeToHomePage(view)
+                }
+
                 if (isCurrentTab(tab)) {
                     binding.progressBar.visibility = View.GONE
                     if (!binding.editAddress.isFocused) {
@@ -252,6 +309,14 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Đẩy theme hiện tại (morning/day/night/midnight) vào trang chủ, để UI web
+     * đồng bộ với giao diện native thay vì chỉ theo sáng/tối hệ thống. */
+    private fun applyThemeToHomePage(webView: WebView) {
+        val themeName = ThemeManager.resolveEffectiveTheme(this).name.lowercase()
+        val js = "window.EgeoHome && window.EgeoHome.setTheme && window.EgeoHome.setTheme('$themeName');"
+        webView.evaluateJavascript(js, null)
+    }
+
     private fun isCurrentTab(tab: BrowserTab): Boolean = tabManager.currentTab?.id == tab.id
 
     // ---------------------------------------------------------------------
@@ -268,8 +333,13 @@ open class MainActivity : AppCompatActivity() {
                 false
             }
         }
-        binding.btnGo.setOnClickListener { submitAddressBar() }
-        binding.btnSettings.setOnClickListener { openSettingsScreen() }
+        binding.btnSearchLead.setOnClickListener { binding.editAddress.requestFocus() }
+        binding.btnMic.setOnClickListener { startNativeVoiceSearch() }
+        binding.btnScan.setOnClickListener {
+            Toast.makeText(this, R.string.scan_coming_soon, Toast.LENGTH_SHORT).show()
+        }
+        binding.btnNewTabTop.setOnClickListener { openNewTab() }
+        binding.btnOverflow.setOnClickListener { showOverflowMenu(it) }
     }
 
     private fun setupNavigationButtons() {
@@ -282,7 +352,48 @@ open class MainActivity : AppCompatActivity() {
         binding.btnReload.setOnClickListener {
             tabManager.currentTab?.webView?.reload()
         }
-        binding.btnNewTab.setOnClickListener { openNewTab() }
+        binding.btnTabCount.setOnClickListener { showTabSwitcher() }
+        binding.btnNewTabBottom.setOnClickListener { openNewTab() }
+    }
+
+    private fun showOverflowMenu(anchor: View) {
+        val popup = PopupMenu(this, anchor)
+        popup.menu.add(0, 1, 0, R.string.action_settings)
+        popup.menu.add(0, 2, 1, R.string.action_close_tab)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> {
+                    openSettingsScreen()
+                    true
+                }
+                2 -> {
+                    tabManager.closeCurrentTab()
+                    if (tabManager.tabCount == 0) openNewTab()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun startNativeVoiceSearch() {
+        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            return
+        }
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_prompt))
+        }
+        try {
+            voiceSearchLauncher.launch(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.voice_not_supported, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateNavButtonsState() {

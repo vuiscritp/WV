@@ -11,6 +11,13 @@
     <string name="action_settings">Cài đặt</string>
     <string name="action_new_tab">Tab mới</string>
     <string name="action_close_tab">Đóng tab</string>
+    <string name="action_voice_search">Tìm bằng giọng nói</string>
+    <string name="action_scan">Quét mã</string>
+    <string name="action_more">Thêm</string>
+    <string name="scan_coming_soon">Tính năng quét mã sẽ có ở phiên bản sau.</string>
+    <string name="voice_prompt">Nói để tìm kiếm…</string>
+    <string name="voice_not_supported">Thiết bị này không hỗ trợ nhận dạng giọng nói.</string>
+    <string name="tabs_dialog_title">Chọn tab</string>
     <string name="diagnostics_title">Chẩn đoán</string>
     <string name="label_profile">Hồ sơ hiện tại</string>
     <string name="action_switch_profile">Chuyển hồ sơ</string>

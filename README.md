@@ -3,6 +3,36 @@
 Trình duyệt Android dùng WebView, giao diện lấy cảm hứng màu sắc cam/đỏ/cam-đỏ
 (thiết kế nguyên bản, không dùng lại asset/code của bất kỳ sản phẩm nào khác).
 
+## Trạng thái: Phase 2 — Đa tab & đa hồ sơ
+
+Kế thừa toàn bộ Phase 1, cộng thêm:
+
+- **Đa tab thật**: mỗi tab là 1 `WebView` riêng biệt (không phải load lại URL
+  trên 1 WebView dùng chung), nên mỗi tab giữ đúng lịch sử back/forward, vị
+  trí cuộn... của riêng nó. Thanh tab cuộn ngang phía trên, có nút đóng từng
+  tab và nút "+" thêm tab mới.
+- **Trang chủ/tab mới thật**: `assets/home.html` (phong cách cam, dựa trên
+  giao diện người dùng cung cấp, đã bỏ phần "kết quả tìm kiếm" giả lập — khi
+  tìm kiếm, trang gọi sang Android để điều hướng WebView tới trang kết quả
+  **thật** của công cụ tìm kiếm đã chọn).
+- **Đa hồ sơ (profile) cách ly thật**: 4 hồ sơ (Mặc định + 3 hồ sơ phụ), mỗi
+  hồ sơ chạy trong **1 tiến trình Android riêng** (`android:process` trong
+  Manifest) — đây là cách chính thống để WebView cô lập cookie/localStorage/
+  cache theo hồ sơ, không phải giả lập. Hồ sơ phụ cần Android 9 (API 28) trở
+  lên vì giới hạn kỹ thuật của WebView; dưới mức đó app tự ẩn tùy chọn này.
+- **Cài đặt**: thêm mục chọn/chuyển hồ sơ, xóa dữ liệu hồ sơ hiện tại, mở màn
+  Chẩn đoán.
+- **Chẩn đoán (v1)**: hiển thị phiên bản Android/WebView, tiến trình, hồ sơ
+  hiện tại, số tab, URL tab hiện tại, phiên bản app.
+- **Quyền micro thật**: nút tìm kiếm bằng giọng nói dùng Web Speech API thật
+  trong WebView, có xin quyền `RECORD_AUDIO` và cấp qua
+  `WebChromeClient.onPermissionRequest` — không phải nút trang trí.
+
+Giới hạn đã biết của Phase 2 (sẽ cải thiện ở phase sau): danh sách tab không
+được lưu lại khi tiến trình bị hệ thống kill (mất khi mở lại app từ đầu); cài
+đặt giao diện/UA/công cụ tìm kiếm dùng chung cho mọi hồ sơ (chưa tách riêng
+từng hồ sơ).
+
 ## Trạng thái: Phase 1 — Trình duyệt lõi
 
 Đã có trong phase này:

@@ -9,6 +9,17 @@
     <string name="action_forward">Tiến tới</string>
     <string name="action_reload">Tải lại</string>
     <string name="action_settings">Cài đặt</string>
+    <string name="action_new_tab">Tab mới</string>
+    <string name="action_close_tab">Đóng tab</string>
+    <string name="diagnostics_title">Chẩn đoán</string>
+    <string name="label_profile">Hồ sơ hiện tại</string>
+    <string name="action_switch_profile">Chuyển hồ sơ</string>
+    <string name="action_clear_profile_data">Xóa dữ liệu hồ sơ này (cookie, cache)</string>
+    <string name="confirm_clear_profile_data">Toàn bộ cookie và cache của hồ sơ hiện tại sẽ bị xóa. Tiếp tục?</string>
+    <string name="data_cleared">Đã xóa dữ liệu hồ sơ này.</string>
+    <string name="action_diagnostics">Xem chẩn đoán</string>
+    <string name="profile_secondary_unsupported">Hồ sơ phụ cần Android 9 trở lên. Thiết bị này chỉ dùng được hồ sơ Mặc định.</string>
+    <string name="already_on_this_profile">Bạn đang ở hồ sơ này rồi.</string>
 
     <string name="label_theme_mode">Chế độ giao diện</string>
     <string name="label_light_variant">Biến thể sáng</string>

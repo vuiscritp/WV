@@ -53,6 +53,23 @@
             app:tint="@android:color/white" />
     </LinearLayout>
 
+    <!-- Thanh tab: cuộn ngang, mỗi tab là 1 chip có nút đóng -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="?attr/colorSurface"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/tabStrip"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:gravity="center_vertical" />
+    </HorizontalScrollView>
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -61,8 +78,8 @@
         android:max="100"
         android:visibility="gone" />
 
-    <WebView
-        android:id="@+id/webView"
+    <FrameLayout
+        android:id="@+id/webViewContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -75,7 +92,7 @@
         android:background="?attr/colorSurface"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:weightSum="3">
+        android:weightSum="4">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -103,6 +120,15 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/action_forward"
             android:src="@android:drawable/ic_media_next" />
+
+        <ImageButton
+            android:id="@+id/btnNewTab"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_new_tab"
+            android:src="@android:drawable/ic_menu_add" />
     </LinearLayout>
 
 </LinearLayout>

@@ -1,11 +1,18 @@
 package egeo.com.browser
 
+import android.content.Intent
 import android.os.Bundle
+import android.webkit.CookieManager
+import android.webkit.WebStorage
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import egeo.com.browser.databinding.ActivitySettingsBinding
 import egeo.com.browser.search.ALL_SEARCH_ENGINES
 import egeo.com.browser.search.searchEngineById
+import egeo.com.browser.profile.ProfileHolder
+import egeo.com.browser.profile.ProfileManager
 import egeo.com.browser.theme.ThemeManager
 import egeo.com.browser.theme.ThemeMode
 
@@ -18,6 +25,7 @@ class SettingsActivity : AppCompatActivity() {
     )
     private val lightVariantValues = listOf(ThemeMode.MORNING, ThemeMode.DAY)
     private val darkVariantValues = listOf(ThemeMode.NIGHT, ThemeMode.MIDNIGHT)
+    private var profileIds: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.resolveStyleRes(this))
@@ -27,9 +35,12 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupSearchEngineSpinner()
+        setupProfileSection()
         loadCurrentValues()
 
         binding.btnSave.setOnClickListener { saveAndFinish() }
+        binding.btnDiagnostics.setOnClickListener { openDiagnostics() }
+        binding.btnClearProfileData.setOnClickListener { confirmClearProfileData() }
     }
 
     private fun setupSearchEngineSpinner() {
@@ -37,6 +48,34 @@ class SettingsActivity : AppCompatActivity() {
         binding.spinnerSearchEngine.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, names
         )
+    }
+
+    private fun setupProfileSection() {
+        profileIds = ProfileManager.availableProfileIds()
+        val names = profileIds.map { ProfileHolder.displayName(it) }
+        binding.spinnerProfile.adapter = ArrayAdapter(
+            this, android.R.layout.simple_spinner_dropdown_item, names
+        )
+
+        binding.textCurrentProfile.text = getString(
+            R.string.label_profile
+        ) + ": " + ProfileHolder.displayName(ProfileHolder.currentProfileId)
+
+        if (!ProfileManager.secondaryProfilesSupported()) {
+            binding.btnSwitchProfile.isEnabled = false
+            Toast.makeText(this, R.string.profile_secondary_unsupported, Toast.LENGTH_LONG).show()
+        }
+
+        binding.btnSwitchProfile.setOnClickListener {
+            val selectedProfileId = profileIds.getOrNull(binding.spinnerProfile.selectedItemPosition)
+                ?: return@setOnClickListener
+            if (selectedProfileId == ProfileHolder.currentProfileId) {
+                Toast.makeText(this, R.string.already_on_this_profile, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            ProfileManager.switchTo(this, selectedProfileId)
+            finish()
+        }
     }
 
     private fun loadCurrentValues() {
@@ -48,6 +87,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.spinnerSearchEngine.setSelection(ALL_SEARCH_ENGINES.indexOf(currentEngine).coerceAtLeast(0))
 
         binding.editCustomUa.setText(AppPrefs.getCustomUserAgent(this) ?: "")
+
+        val currentProfileIndex = profileIds.indexOf(ProfileHolder.currentProfileId)
+        binding.spinnerProfile.setSelection(currentProfileIndex.coerceAtLeast(0))
     }
 
     private fun saveAndFinish() {
@@ -64,5 +106,30 @@ class SettingsActivity : AppCompatActivity() {
         AppPrefs.setCustomUserAgent(this, customUa)
 
         finish()
+    }
+
+    private fun confirmClearProfileData() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.action_clear_profile_data)
+            .setMessage(R.string.confirm_clear_profile_data)
+            .setPositiveButton(android.R.string.ok) { _, _ -> clearProfileData() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun clearProfileData() {
+        CookieManager.getInstance().removeAllCookies(null)
+        CookieManager.getInstance().flush()
+        WebStorage.getInstance().deleteAllData()
+        Toast.makeText(this, R.string.data_cleared, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openDiagnostics() {
+        val tabCount = intent.getIntExtra(DiagnosticsActivity.EXTRA_TAB_COUNT, -1)
+        val currentUrl = intent.getStringExtra(DiagnosticsActivity.EXTRA_CURRENT_URL)
+        val diagnosticsIntent = Intent(this, DiagnosticsActivity::class.java)
+            .putExtra(DiagnosticsActivity.EXTRA_TAB_COUNT, tabCount)
+            .putExtra(DiagnosticsActivity.EXTRA_CURRENT_URL, currentUrl)
+        startActivity(diagnosticsIntent)
     }
 }

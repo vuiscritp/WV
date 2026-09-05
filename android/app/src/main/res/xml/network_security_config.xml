@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Mặc định: không cho phép cleartext (HTTP thường), chỉ HTTPS.
+  Nếu ở phase sau cần cho phép domain HTTP cụ thể (vd. test nội bộ),
+  thêm <domain-config> với cleartextTrafficPermitted="true" cho domain đó,
+  không nên bật cleartext toàn cục.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

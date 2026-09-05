@@ -1,0 +1,29 @@
+# Android / Gradle
+.gradle/
+build/
+*.apk
+*.aab
+local.properties
+.idea/
+*.iml
+.cxx/
+captures/
+.externalNativeBuild/
+
+# Keystore thật - KHÔNG BAO GIỜ commit
+*.jks
+*.keystore
+keystore.properties
+
+# Node (dùng ở phase 5)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# macOS / hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Dữ liệu runtime của app (profile, cookie... không thuộc source)
+app-data/
+*.db

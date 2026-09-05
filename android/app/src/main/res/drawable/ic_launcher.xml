@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Nền tròn cam-đỏ -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M54,4 A50,50 0 1 1 53.9,4 Z" />
+
+    <!-- Vòng trong nhạt hơn -->
+    <path
+        android:fillColor="#FF8A50"
+        android:pathData="M54,20 A34,34 0 1 1 53.9,20 Z" />
+
+    <!-- Kim la bàn cách điệu (chữ E ẩn dụ hướng đi) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 L64,54 L54,50 L44,54 Z" />
+    <path
+        android:fillColor="#FFD9C4"
+        android:pathData="M54,78 L44,54 L54,58 L64,54 Z" />
+
+</vector>

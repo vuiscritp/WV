@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_theme_mode"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+        <Spinner
+            android:id="@+id/spinnerThemeMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/theme_mode_entries" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_light_variant"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+        <Spinner
+            android:id="@+id/spinnerLightVariant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/light_variant_entries" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_dark_variant"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+        <Spinner
+            android:id="@+id/spinnerDarkVariant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/dark_variant_entries" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_search_engine"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+        <Spinner
+            android:id="@+id/spinnerSearchEngine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/search_engine_entries" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_custom_ua"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+        <EditText
+            android:id="@+id/editCustomUa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:minLines="2" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/action_save"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</ScrollView>

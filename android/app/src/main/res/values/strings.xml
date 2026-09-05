@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Egeo</string>
+    <string name="settings_title">Cài đặt</string>
+
+    <string name="hint_address_bar">Tìm kiếm hoặc nhập địa chỉ web</string>
+    <string name="action_go">Đi</string>
+    <string name="action_back">Quay lại</string>
+    <string name="action_forward">Tiến tới</string>
+    <string name="action_reload">Tải lại</string>
+    <string name="action_settings">Cài đặt</string>
+
+    <string name="label_theme_mode">Chế độ giao diện</string>
+    <string name="label_light_variant">Biến thể sáng</string>
+    <string name="label_dark_variant">Biến thể tối</string>
+    <string name="label_search_engine">Công cụ tìm kiếm</string>
+    <string name="label_custom_ua">User-Agent tùy chỉnh (để trống dùng mặc định đã bỏ \"wv\")</string>
+    <string name="action_save">Lưu</string>
+
+    <string-array name="theme_mode_entries">
+        <item>Theo hệ thống</item>
+        <item>Morning</item>
+        <item>Day</item>
+        <item>Night</item>
+        <item>Midnight</item>
+    </string-array>
+    <string-array name="theme_mode_values">
+        <item>SYSTEM</item>
+        <item>MORNING</item>
+        <item>DAY</item>
+        <item>NIGHT</item>
+        <item>MIDNIGHT</item>
+    </string-array>
+
+    <string-array name="light_variant_entries">
+        <item>Morning</item>
+        <item>Day</item>
+    </string-array>
+    <string-array name="light_variant_values">
+        <item>MORNING</item>
+        <item>DAY</item>
+    </string-array>
+
+    <string-array name="dark_variant_entries">
+        <item>Night</item>
+        <item>Midnight</item>
+    </string-array>
+    <string-array name="dark_variant_values">
+        <item>NIGHT</item>
+        <item>MIDNIGHT</item>
+    </string-array>
+
+    <string-array name="search_engine_entries">
+        <item>Google</item>
+        <item>Bing</item>
+        <item>Cốc Cốc</item>
+        <item>DuckDuckGo</item>
+    </string-array>
+    <string-array name="search_engine_values">
+        <item>google</item>
+        <item>bing</item>
+        <item>coccoc</item>
+        <item>duckduckgo</item>
+    </string-array>
+</resources>

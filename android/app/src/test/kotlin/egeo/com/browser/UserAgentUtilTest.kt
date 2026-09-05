@@ -1,6 +1,7 @@
 package egeo.com.browser
 
 import egeo.com.browser.search.SearchEngine
+import egeo.com.browser.search.searchEngineById
 import egeo.com.browser.util.UserAgentUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -36,11 +37,11 @@ class SearchEngineTest {
 
     @Test
     fun `byId falls back to google for unknown id`() {
-        assertEquals(SearchEngine.Google, SearchEngine.byId("unknown-engine"))
+        assertEquals(SearchEngine.Google, searchEngineById("unknown-engine"))
     }
 
     @Test
     fun `byId resolves coccoc`() {
-        assertEquals(SearchEngine.CocCoc, SearchEngine.byId("coccoc"))
+        assertEquals(SearchEngine.CocCoc, searchEngineById("coccoc"))
     }
 }

@@ -57,3 +57,15 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
+
+// Chẩn đoán: in đầy đủ stack trace khi unit test fail (mặc định Gradle chỉ in
+// 1 dòng tóm tắt "ExceptionType at File:line", không đủ để tìm nguyên nhân
+// thật). Sẽ gỡ dòng này khi hết fail.
+tasks.withType<Test> {
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStackTraces = true
+        showCauses = true
+        events("failed", "skipped")
+    }
+}

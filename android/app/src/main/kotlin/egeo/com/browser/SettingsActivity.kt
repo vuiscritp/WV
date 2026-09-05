@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import egeo.com.browser.databinding.ActivitySettingsBinding
-import egeo.com.browser.search.SearchEngine
+import egeo.com.browser.search.ALL_SEARCH_ENGINES
+import egeo.com.browser.search.searchEngineById
 import egeo.com.browser.theme.ThemeManager
 import egeo.com.browser.theme.ThemeMode
 
@@ -32,7 +33,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupSearchEngineSpinner() {
-        val names = SearchEngine.ALL.map { it.displayName }
+        val names = ALL_SEARCH_ENGINES.map { it.displayName }
         binding.spinnerSearchEngine.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, names
         )
@@ -43,8 +44,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.spinnerLightVariant.setSelection(lightVariantValues.indexOf(ThemeManager.getLightVariant(this)).coerceAtLeast(0))
         binding.spinnerDarkVariant.setSelection(darkVariantValues.indexOf(ThemeManager.getDarkVariant(this)).coerceAtLeast(0))
 
-        val currentEngine = SearchEngine.byId(AppPrefs.getSearchEngineId(this))
-        binding.spinnerSearchEngine.setSelection(SearchEngine.ALL.indexOf(currentEngine).coerceAtLeast(0))
+        val currentEngine = searchEngineById(AppPrefs.getSearchEngineId(this))
+        binding.spinnerSearchEngine.setSelection(ALL_SEARCH_ENGINES.indexOf(currentEngine).coerceAtLeast(0))
 
         binding.editCustomUa.setText(AppPrefs.getCustomUserAgent(this) ?: "")
     }
@@ -53,7 +54,7 @@ class SettingsActivity : AppCompatActivity() {
         val selectedMode = themeModeValues[binding.spinnerThemeMode.selectedItemPosition]
         val selectedLight = lightVariantValues[binding.spinnerLightVariant.selectedItemPosition]
         val selectedDark = darkVariantValues[binding.spinnerDarkVariant.selectedItemPosition]
-        val selectedEngine = SearchEngine.ALL[binding.spinnerSearchEngine.selectedItemPosition]
+        val selectedEngine = ALL_SEARCH_ENGINES[binding.spinnerSearchEngine.selectedItemPosition]
         val customUa = binding.editCustomUa.text?.toString()?.trim()
 
         ThemeManager.setMode(this, selectedMode)

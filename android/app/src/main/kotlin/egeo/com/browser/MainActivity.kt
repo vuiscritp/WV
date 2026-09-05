@@ -15,6 +15,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import egeo.com.browser.databinding.ActivityMainBinding
 import egeo.com.browser.search.SearchEngine
+import egeo.com.browser.search.searchEngineById
 import egeo.com.browser.theme.ThemeManager
 import egeo.com.browser.theme.ThemeMode
 import egeo.com.browser.util.UserAgentUtil
@@ -153,7 +154,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildSearchUrl(query: String): String {
-        val engine = SearchEngine.byId(AppPrefs.getSearchEngineId(this))
+        val engine = searchEngineById(AppPrefs.getSearchEngineId(this))
         return engine.buildSearchUrl(query)
     }
 
@@ -173,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadHomePage() {
         // Trang chủ phase 1: mở trang chủ của công cụ tìm kiếm đang chọn.
-        val engine = SearchEngine.byId(AppPrefs.getSearchEngineId(this))
+        val engine = searchEngineById(AppPrefs.getSearchEngineId(this))
         val homeUrl = when (engine) {
             SearchEngine.Google -> "https://www.google.com"
             SearchEngine.Bing -> "https://www.bing.com"

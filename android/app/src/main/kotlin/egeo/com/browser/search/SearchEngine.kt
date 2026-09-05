@@ -2,12 +2,15 @@ package egeo.com.browser.search
 
 import java.net.URLEncoder
 
+private const val QUERY_PLACEHOLDER = "%QUERY%"
+
 /**
- * Trừu tượng hoá công cụ tìm kiếm. Thêm engine mới = thêm 1 object vào ALL.
+ * Trừu tượng hoá công cụ tìm kiếm.
  *
- * Dùng java.net.URLEncoder (thuần Kotlin/JVM) thay vì android.net.Uri để
- * class này chạy được trong unit test JVM thường, không cần Android framework
- * hay Robolectric.
+ * Cố tình KHÔNG dùng companion object cho ALL/byId (đã từng gây NullPointerException
+ * khó chẩn đoán khi kết hợp sealed class + companion + object lồng trên một số
+ * cấu hình JVM/Kotlin). Thay vào đó, danh sách và hàm tra cứu là top-level,
+ * đơn giản và không phụ thuộc thứ tự khởi tạo giữa các class.
  */
 sealed class SearchEngine(val id: String, val displayName: String, private val queryUrlTemplate: String) {
 
@@ -39,12 +42,14 @@ sealed class SearchEngine(val id: String, val displayName: String, private val q
         displayName = "DuckDuckGo",
         queryUrlTemplate = "https://duckduckgo.com/?q=$QUERY_PLACEHOLDER"
     )
-
-    companion object {
-        private const val QUERY_PLACEHOLDER = "%QUERY%"
-
-        val ALL: List<SearchEngine> = listOf(Google, Bing, CocCoc, DuckDuckGo)
-
-        fun byId(id: String?): SearchEngine = ALL.find { it.id == id } ?: Google
-    }
 }
+
+val ALL_SEARCH_ENGINES: List<SearchEngine> = listOf(
+    SearchEngine.Google,
+    SearchEngine.Bing,
+    SearchEngine.CocCoc,
+    SearchEngine.DuckDuckGo
+)
+
+fun searchEngineById(id: String?): SearchEngine =
+    ALL_SEARCH_ENGINES.find { it.id == id } ?: SearchEngine.Google

@@ -1025,19 +1025,6 @@
       }
     }
   </style>
-
-<style id="egeo-app-override">
-  /* Khi chạy trong WebView của app: ẩn chrome giả, chỉ giữ nội dung trang chủ */
-  .browser-header { display: none !important; }
-  .browser-window { height: 100% !important; }
-  .viewport { 
-    height: 100% !important; 
-    min-height: 100dvh !important;
-    padding-top: max(24px, env(safe-area-inset-top)) !important;
-  }
-  body, html { background: #1a1a1a; }
-</style>
-
 </head>
 <body>
 
@@ -1234,7 +1221,7 @@
 
         <!-- Main Shortcut Buttons Grid -->
         <div class="shortcuts-grid">
-          <a href="https://www.youtube.com" target="_blank" class="shortcut-item" data-name="YouTube">
+          <a href="https://www.youtube.com" target="_self" class="shortcut-item" data-name="YouTube">
             <div class="icon-circle youtube">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -1243,7 +1230,7 @@
             <span>YouTube</span>
           </a>
 
-          <a href="https://mail.google.com" target="_blank" class="shortcut-item" data-name="Gmail">
+          <a href="https://mail.google.com" target="_self" class="shortcut-item" data-name="Gmail">
             <div class="icon-circle gmail">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
@@ -1252,7 +1239,7 @@
             <span>Gmail</span>
           </a>
 
-          <a href="https://maps.google.com" target="_blank" class="shortcut-item" data-name="Google Maps">
+          <a href="https://maps.google.com" target="_self" class="shortcut-item" data-name="Google Maps">
             <div class="icon-circle maps">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -1261,14 +1248,14 @@
             <span>Maps</span>
           </a>
 
-          <a href="https://vi.wikipedia.org" target="_blank" class="shortcut-item" data-name="Wikipedia">
+          <a href="https://vi.wikipedia.org" target="_self" class="shortcut-item" data-name="Wikipedia">
             <div class="icon-circle wikipedia">
               W
             </div>
             <span>Wikipedia</span>
           </a>
 
-          <a href="https://www.facebook.com" target="_blank" class="shortcut-item" data-name="Facebook">
+          <a href="https://www.facebook.com" target="_self" class="shortcut-item" data-name="Facebook">
             <div class="icon-circle facebook">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -1277,7 +1264,7 @@
             <span>Facebook</span>
           </a>
 
-          <a href="https://news.google.com" target="_blank" class="shortcut-item" data-name="Tin tức">
+          <a href="https://news.google.com" target="_self" class="shortcut-item" data-name="Tin tức">
             <div class="icon-circle news">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
@@ -1298,7 +1285,7 @@
           </div>
 
           <div class="quick-buttons-row">
-            <a href="https://www.google.com/search?q=thời+tiết+hôm+nay" target="_blank" class="pill-btn">
+            <a href="https://www.google.com/search?q=thời+tiết+hôm+nay" target="_self" class="pill-btn">
               <div class="pill-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbcfe8" stroke-width="2">
                   <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1564 20.206 10.2315 17.9002 10.0242C17.4332 6.58784 14.475 3.9 10.8889 3.9C7.81056 3.9 5.19835 5.8647 4.25424 8.61868C2.3999 9.38374 1 11.2335 1 13.5C1 16.5376 3.46243 19 6.5 19H17.5Z" fill="rgba(255,255,255,0.2)"/>
@@ -1308,7 +1295,7 @@
               <span>thời tiết hôm nay</span>
             </a>
 
-            <a href="https://www.google.com/search?q=giá+vàng+hôm+nay" target="_blank" class="pill-btn">
+            <a href="https://www.google.com/search?q=giá+vàng+hôm+nay" target="_self" class="pill-btn">
               <div class="pill-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24">
                   <path d="M4 11h16l-2 8H6l-2-8zm1-5h14l1.5 3H3.5L5 6z"/>
@@ -1317,7 +1304,7 @@
               <span>giá vàng</span>
             </a>
 
-            <a href="https://www.google.com/search?q=tỷ+giá+usd" target="_blank" class="pill-btn">
+            <a href="https://www.google.com/search?q=tỷ+giá+usd" target="_self" class="pill-btn">
               <div class="pill-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                   <circle cx="12" cy="12" r="9"/>
@@ -1327,7 +1314,7 @@
               <span>tỷ giá usd</span>
             </a>
 
-            <a href="https://www.google.com/search?q=lịch+âm+hôm+nay" target="_blank" class="pill-btn">
+            <a href="https://www.google.com/search?q=lịch+âm+hôm+nay" target="_self" class="pill-btn">
               <div class="pill-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                   <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
@@ -1357,39 +1344,6 @@
     // --- Helper Toast Notification ---
     const toast = document.getElementById('toast');
     let toastTimeout;
-    
-    // --- Android bridge helpers ---
-    function hasAndroidBridge() {
-      return typeof AndroidBridge !== "undefined" && AndroidBridge !== null;
-    }
-    function bridgeCall(fn) {
-      try {
-        if (hasAndroidBridge() && typeof AndroidBridge[fn] === "function") {
-          AndroidBridge[fn]();
-          return true;
-        }
-      } catch (e) {}
-      return false;
-    }
-    function bridgeOpenUrl(url) {
-      try {
-        if (hasAndroidBridge() && typeof AndroidBridge.openUrl === "function") {
-          AndroidBridge.openUrl(url);
-          return true;
-        }
-      } catch (e) {}
-      return false;
-    }
-    function bridgeSearch(q) {
-      try {
-        if (hasAndroidBridge() && typeof AndroidBridge.search === "function") {
-          AndroidBridge.search(q);
-          return true;
-        }
-      } catch (e) {}
-      return false;
-    }
-
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add('show');
@@ -1469,7 +1423,7 @@
 
     document.getElementById('menuNewWin').addEventListener('click', () => {
       chromeMenu.classList.remove('show');
-      if (!bridgeCall('newTab')) { showToast('Đã mở thẻ mới'); }
+      if (!bridgeCall('newTab')) showToast('Đã mở thẻ mới');
     });
 
     document.getElementById('menuHistory').addEventListener('click', () => {
@@ -1489,7 +1443,7 @@
 
     document.getElementById('menuSettings').addEventListener('click', () => {
       chromeMenu.classList.remove('show');
-      // Ưu tiên mở Cài đặt native; fallback panel tùy chỉnh trong HTML
+      // Mở Cài đặt native (API, hồ sơ, UA...) — giữ panel HTML làm fallback tùy chỉnh nền
       if (!bridgeCall('openSettings')) {
         document.getElementById('customizePanel').classList.add('open');
       }
@@ -1619,7 +1573,7 @@
         refreshBtn.querySelector('svg').style.transform = 'none';
         refreshBtn.querySelector('svg').style.transition = 'none';
       }, 500);
-      showToast('Đã tải lại trang');
+      if (!bridgeCall('reload')) showToast('Đã tải lại trang');
     });
 
     starBtn.addEventListener('click', () => {
@@ -1639,11 +1593,15 @@
     const topAddressInput = document.getElementById('topAddressInput');
     topAddressInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
-        let val = topAddressInput.value.trim();
-        if (!val.startsWith('http://') && !val.startsWith('https://')) {
-          val = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+        const val = topAddressInput.value.trim();
+        if (!val) return;
+        if (!bridgeNavigate(val)) {
+          let u = val;
+          if (!u.startsWith('http://') && !u.startsWith('https://')) {
+            u = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+          }
+          window.location.href = u;
         }
-        window.open(val, '_blank');
       }
     });
 
@@ -1653,11 +1611,17 @@
     const micBtn = document.getElementById('micBtn');
 
     mainSearchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
       const q = searchInput.value.trim();
+      if (!q) return;
       if (q.startsWith('http://') || q.startsWith('https://') || (q.includes('.') && !q.includes(' '))) {
-        e.preventDefault();
-        const url = q.startsWith('http') ? q : 'https://' + q;
-        window.open(url, '_blank');
+        if (!bridgeOpenUrl(q.startsWith('http') ? q : 'https://' + q)) {
+          window.location.href = q.startsWith('http') ? q : 'https://' + q;
+        }
+      } else {
+        if (!bridgeSearch(q) && !bridgeNavigate(q)) {
+          window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+        }
       }
     });
 
@@ -1696,5 +1660,49 @@
       }
     });
   </script>
+
+<script>
+  // Android bridge
+  function hasAndroidBridge() {
+    return typeof AndroidBridge !== "undefined" && AndroidBridge !== null;
+  }
+  function bridgeCall(fn) {
+    try {
+      if (hasAndroidBridge() && typeof AndroidBridge[fn] === "function") {
+        AndroidBridge[fn]();
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  function bridgeNavigate(q) {
+    try {
+      if (hasAndroidBridge() && typeof AndroidBridge.navigate === "function") {
+        AndroidBridge.navigate(q);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  function bridgeOpenUrl(url) {
+    try {
+      if (hasAndroidBridge() && typeof AndroidBridge.openUrl === "function") {
+        AndroidBridge.openUrl(url);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  function bridgeSearch(q) {
+    try {
+      if (hasAndroidBridge() && typeof AndroidBridge.search === "function") {
+        AndroidBridge.search(q);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+</script>
+
 </body>
 </html>

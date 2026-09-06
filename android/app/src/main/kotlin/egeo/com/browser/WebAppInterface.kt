@@ -18,6 +18,7 @@ class WebAppInterface(private val callbacks: Callbacks) {
         fun onBridgeDownloads()
         fun onBridgeBookmarks()
         fun onBridgeReload()
+        fun onBridgeNavigate(query: String)
     }
 
     @JavascriptInterface
@@ -63,5 +64,10 @@ class WebAppInterface(private val callbacks: Callbacks) {
     @JavascriptInterface
     fun reload() {
         callbacks.onBridgeReload()
+    }
+
+    @JavascriptInterface
+    fun navigate(query: String) {
+        callbacks.onBridgeNavigate(query)
     }
 }

@@ -11,7 +11,6 @@ import android.net.http.SslError
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.webkit.CookieManager
@@ -29,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import egeo.com.browser.databinding.ActivityMainBinding
-import egeo.com.browser.databinding.ItemTabChipBinding
 import egeo.com.browser.search.searchEngineById
 import egeo.com.browser.tabs.BrowserTab
 import egeo.com.browser.tabs.TabManager
@@ -56,8 +54,13 @@ open class MainActivity : AppCompatActivity() {
                 ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 ?.firstOrNull()
             if (!text.isNullOrBlank()) {
-                binding.editAddress.setText(text)
-                submitAddressBar()
+                // voice -> search via current tab
+                val tab = tabManager.currentTab
+                if (tab != null) {
+                    tab.isHomePage = false
+                    val engine = searchEngineById(AppPrefs.getSearchEngineId(this@MainActivity))
+                    tab.webView.loadUrl(engine.buildSearchUrl(text))
+                }
             }
         }
     }
@@ -126,29 +129,12 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun bindCurrentTabToUi() {
-        val tab = tabManager.currentTab
-        binding.editAddress.setText(if (tab == null || tab.isHomePage) "" else tab.url)
+        // UI do HTML chrome đảm nhiệm; native chỉ quản WebView/tab
         updateNavButtonsState()
     }
 
     private fun renderTabStrip() {
-        binding.tabStrip.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-        tabManager.allTabs().forEachIndexed { index, tab ->
-            val chip = ItemTabChipBinding.inflate(inflater, binding.tabStrip, false)
-            chip.tabTitle.text = if (tab.isHomePage) "Trang mới" else tab.title.ifBlank { tab.url }
-            chip.root.isSelected = index == tabManager.currentIndexValue
-            chip.root.setOnClickListener {
-                tabManager.switchTo(index)
-            }
-            chip.tabClose.setOnClickListener {
-                tabManager.closeTab(index)
-                if (tabManager.tabCount == 0) {
-                    openNewTab()
-                }
-            }
-            binding.tabStrip.addView(chip.root)
-        }
+        // Thanh tab native đã bỏ — UI tab nằm trong home.html
     }
 
     private fun showTabSwitcher() {
@@ -247,6 +233,10 @@ open class MainActivity : AppCompatActivity() {
                         tabManager.currentTab?.webView?.reload()
                     }
                 }
+
+                override fun onBridgeNavigate(query: String) {
+                    runOnUiThread { submitAddressBar(query) }
+                }
             }),
             "AndroidBridge"
         )
@@ -256,8 +246,7 @@ open class MainActivity : AppCompatActivity() {
                 super.onPageStarted(view, url, favicon)
                 val tab = tabManager.allTabs().find { it.webView === view } ?: return
                 if (isCurrentTab(tab)) {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.progressBar.progress = 0
+                    // progress UI removed (HTML chrome)
                 }
                 egeo.com.browser.api.ApiEventBus.emit(
                     "navigation_started",
@@ -272,10 +261,7 @@ open class MainActivity : AppCompatActivity() {
                 tab.title = view.title?.takeIf { it.isNotBlank() } ?: tab.url
 
                 if (isCurrentTab(tab)) {
-                    binding.progressBar.visibility = View.GONE
-                    if (!binding.editAddress.isFocused) {
-                        binding.editAddress.setText(if (tab.isHomePage) "" else tab.url)
-                    }
+                    // address/progress UI removed (HTML chrome)
                     updateNavButtonsState()
                 }
                 renderTabStrip()
@@ -296,7 +282,7 @@ open class MainActivity : AppCompatActivity() {
                 super.onProgressChanged(view, newProgress)
                 val tab = tabManager.allTabs().find { it.webView === view } ?: return
                 if (isCurrentTab(tab)) {
-                    binding.progressBar.progress = newProgress
+                    // progress removed
                 }
             }
 
@@ -333,77 +319,15 @@ open class MainActivity : AppCompatActivity() {
     // ---------------------------------------------------------------------
 
     private fun setupAddressBar() {
-        binding.editAddress.setOnEditorActionListener { _, actionId, event ->
-            val isEnterKey = event != null && event.keyCode == KeyEvent.KEYCODE_ENTER
-            if (actionId == EditorInfo.IME_ACTION_GO || isEnterKey) {
-                submitAddressBar()
-                true
-            } else {
-                false
-            }
-        }
-        binding.btnMic.setOnClickListener { startNativeVoiceSearch() }
-        binding.btnNewTabTop.setOnClickListener { openNewTab() }
-        binding.btnOverflow.setOnClickListener { showOverflowMenu(it) }
+        // UI chrome nằm hoàn toàn trong HTML (home.html)
     }
 
     private fun setupNavigationButtons() {
-        binding.btnBack.setOnClickListener {
-            tabManager.currentTab?.webView?.let { if (it.canGoBack()) it.goBack() }
-        }
-        binding.btnForward.setOnClickListener {
-            tabManager.currentTab?.webView?.let { if (it.canGoForward()) it.goForward() }
-        }
-        binding.btnReload.setOnClickListener {
-            tabManager.currentTab?.webView?.reload()
-        }
+        // UI chrome nằm hoàn toàn trong HTML (home.html)
     }
 
     private fun showOverflowMenu(anchor: View) {
-        val popup = PopupMenu(this, anchor)
-        // Menu giống thiết kế HTML: đầy đủ hành động trình duyệt
-        popup.menu.add(0, 10, 0, R.string.action_new_tab)
-        popup.menu.add(0, 11, 1, R.string.action_new_window)
-        popup.menu.add(0, 12, 2, R.string.action_history)
-        popup.menu.add(0, 13, 3, R.string.action_downloads)
-        popup.menu.add(0, 14, 4, R.string.action_bookmarks)
-        popup.menu.add(0, 15, 5, R.string.action_zoom)
-        popup.menu.add(0, 16, 6, R.string.action_settings)
-        popup.menu.add(0, 17, 7, R.string.action_close_tab)
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                10 -> { openNewTab(); true }
-                11 -> {
-                    openNewTab()
-                    Toast.makeText(this, R.string.toast_new_window, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                12 -> {
-                    Toast.makeText(this, R.string.toast_history_empty, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                13 -> {
-                    Toast.makeText(this, R.string.toast_downloads_empty, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                14 -> {
-                    Toast.makeText(this, R.string.toast_bookmarks_empty, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                15 -> {
-                    Toast.makeText(this, R.string.toast_zoom, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                16 -> { openSettingsScreen(); true }
-                17 -> {
-                    tabManager.closeCurrentTab()
-                    if (tabManager.tabCount == 0) openNewTab()
-                    true
-                }
-                else -> false
-            }
-        }
-        popup.show()
+        // Menu ba chấm nằm trong HTML
     }
 
     private fun startNativeVoiceSearch() {
@@ -426,9 +350,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun updateNavButtonsState() {
-        val webView = tabManager.currentTab?.webView
-        binding.btnBack.isEnabled = webView?.canGoBack() == true
-        binding.btnForward.isEnabled = webView?.canGoForward() == true
+        // Native nav buttons removed
     }
 
     private fun setupBackNavigation() {
@@ -446,66 +368,18 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun submitAddressBar() {
-        val input = binding.editAddress.text?.toString()?.trim().orEmpty()
-        if (input.isEmpty()) return
+    private fun submitAddressBar(input: String = "") {
+        val q = input.trim()
+        if (q.isEmpty()) return
         val tab = tabManager.currentTab ?: return
         tab.isHomePage = false
-
-        val url = if (isLikelyUrl(input)) normalizeUrl(input) else buildSearchUrl(input)
-        tab.webView.loadUrl(url)
-        binding.editAddress.clearFocus()
-    }
-
-    private fun buildSearchUrl(query: String): String {
-        val engine = searchEngineById(AppPrefs.getSearchEngineId(this))
-        return engine.buildSearchUrl(query)
-    }
-
-    private fun isLikelyUrl(input: String): Boolean {
-        if (input.startsWith("http://") || input.startsWith("https://")) return true
-        if (input.contains(" ")) return false
-        return input.contains(".") && !input.contains("..")
-    }
-
-    private fun normalizeUrl(input: String): String {
-        return if (input.startsWith("http://") || input.startsWith("https://")) {
-            input
+        if (isLikelyUrl(q)) {
+            tab.webView.loadUrl(normalizeUrl(q))
         } else {
-            "https://$input"
+            tab.webView.loadUrl(buildSearchUrl(q))
         }
     }
 
-    private fun openSettingsScreen() {
-        val intent = Intent(this, SettingsActivity::class.java)
-            .putExtra(DiagnosticsActivity.EXTRA_TAB_COUNT, tabManager.tabCount)
-            .putExtra(DiagnosticsActivity.EXTRA_CURRENT_URL, tabManager.currentTab?.url.orEmpty())
-            .putExtra(SettingsActivity.EXTRA_PROFILE_ID, egeo.com.browser.profile.ProfileHolder.currentProfileId)
-        startActivity(intent)
-    }
-
-    // ---------------------------------------------------------------------
-    // Local API (Phần 3) - gọi từ BrowserApiBridge, LUÔN chạy trên main thread
-    // (BrowserApiBridge.withActivity đã post qua MainThreadBridge trước khi
-    // gọi các hàm này, nên ở đây có thể đụng thẳng vào TabManager/WebView).
-    // ---------------------------------------------------------------------
-
-    fun apiTabCount(): Int = tabManager.tabCount
-
-    fun apiListTabs(): org.json.JSONArray {
-        val arr = org.json.JSONArray()
-        tabManager.allTabs().forEach { tab ->
-            arr.put(
-                org.json.JSONObject()
-                    .put("id", tab.id)
-                    .put("title", if (tab.isHomePage) "Trang mới" else tab.title)
-                    .put("url", if (tab.isHomePage) "" else tab.url)
-                    .put("is_home", tab.isHomePage)
-                    .put("is_current", isCurrentTab(tab))
-            )
-        }
-        return arr
-    }
 
     fun apiCreateTab(): org.json.JSONObject {
         openNewTab()

@@ -380,6 +380,54 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun buildSearchUrl(query: String): String {
+        val engine = searchEngineById(AppPrefs.getSearchEngineId(this))
+        return engine.buildSearchUrl(query)
+    }
+
+    private fun isLikelyUrl(input: String): Boolean {
+        val t = input.trim().lowercase()
+        if (t.startsWith("http://") || t.startsWith("https://")) return true
+        if (t.contains(" ")) return false
+        return t.contains(".") && !t.contains("..")
+    }
+
+    private fun normalizeUrl(input: String): String {
+        return if (input.startsWith("http://") || input.startsWith("https://")) {
+            input
+        } else {
+            "https://$input"
+        }
+    }
+
+    private fun openSettingsScreen() {
+        val intent = Intent(this, SettingsActivity::class.java)
+            .putExtra(DiagnosticsActivity.EXTRA_TAB_COUNT, tabManager.tabCount)
+            .putExtra(DiagnosticsActivity.EXTRA_CURRENT_URL, tabManager.currentTab?.url.orEmpty())
+            .putExtra(SettingsActivity.EXTRA_PROFILE_ID, egeo.com.browser.profile.ProfileHolder.currentProfileId)
+        startActivity(intent)
+    }
+
+    // ---------------------------------------------------------------------
+    // Local API — gọi từ BrowserApiBridge (main thread)
+    // ---------------------------------------------------------------------
+
+    fun apiTabCount(): Int = tabManager.tabCount
+
+    fun apiListTabs(): org.json.JSONArray {
+        val arr = org.json.JSONArray()
+        tabManager.allTabs().forEach { tab ->
+            arr.put(
+                org.json.JSONObject()
+                    .put("id", tab.id)
+                    .put("title", if (tab.isHomePage) "Trang mới" else tab.title)
+                    .put("url", if (tab.isHomePage) "" else tab.url)
+                    .put("is_home", tab.isHomePage)
+                    .put("is_current", isCurrentTab(tab))
+            )
+        }
+        return arr
+    }
 
     fun apiCreateTab(): org.json.JSONObject {
         openNewTab()

@@ -1,433 +1,1662 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#202124" />
-<title>Egeo</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    width: 100%; height: 100%; height: 100dvh;
-    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
-    overflow: hidden; color: #fff; background-color: #1a1a1a;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Egeo - Tìm kiếm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  .viewport {
-    position: relative; width: 100%; height: 100%;
-    background-color: #2b1a10;
-    background-image: var(--bg-url, url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=70'));
-    background-size: cover; background-position: center bottom;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding-top: max(28px, env(safe-area-inset-top)); padding-bottom: 24px;
-    overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
-  }
-  .viewport::before {
-    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: var(--overlay, radial-gradient(circle at 75% 55%, rgba(255,140,50,.14) 0%, rgba(0,0,0,.55) 75%));
-    transition: background .25s ease;
-  }
-  html.no-overlay .viewport::before { background: rgba(0,0,0,.15); }
+    body, html {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      overflow: hidden;
+      color: #ffffff;
+      background-color: #1a1a1a;
+    }
 
-  .settings-btn {
-    position: absolute; top: 14px; right: 16px; z-index: 20;
-    color: rgba(255,255,255,.9); padding: 7px; border-radius: 50%;
-    background: rgba(0,0,0,.25); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center;
-  }
+    /* Outer Wrapper representing the browser window */
+    .browser-window {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background: #202124;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
 
-  .content-container {
-    position: relative; z-index: 2; display: flex; flex-direction: column;
-    align-items: center; width: 100%; max-width: 640px; padding: 0 20px; margin: auto 0;
-  }
+    .browser-window.minimized {
+      transform: scale(0.92) translateY(40px);
+      opacity: 0.8;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    }
 
-  .logo-container { text-align: center; margin-bottom: 22px; }
-  .logo-title {
-    font-size: 46px; font-weight: 700; letter-spacing: -.5px; line-height: 1.1;
-    background: linear-gradient(135deg, #ff7b25 0%, #ff5213 100%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    text-shadow: 0 4px 20px rgba(255,82,19,.25);
-  }
-  .logo-sub { font-size: 14px; color: rgba(255,255,255,.85); margin-top: 4px; letter-spacing: .4px; }
+    /* Top Browser Chrome Bar */
+    .browser-header {
+      background: #202124;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 50;
+    }
 
-  .search-wrapper { width: 100%; max-width: 560px; margin-bottom: 30px; }
-  .search-box {
-    display: flex; align-items: center; background: rgba(255,255,255,.93);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-radius: 28px; padding: 5px 6px 5px 18px;
-    box-shadow: 0 8px 28px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.16);
-    transition: box-shadow .2s ease; width: 100%;
-  }
-  .search-box:focus-within { background: #fff; box-shadow: 0 10px 32px rgba(0,0,0,.35), 0 0 0 2px rgba(255,123,37,.4); }
-  .search-icon-left { color: #70757a; margin-right: 10px; display: flex; flex-shrink: 0; }
-  .search-input {
-    flex: 1; min-width: 0; border: none; outline: none; background: transparent;
-    font-size: 14.5px; color: #202124; font-family: inherit;
-  }
-  .search-input::placeholder { color: #70757a; }
-  .mic-btn {
-    background: none; border: none; color: #5f6368; padding: 7px; margin-right: 2px;
-    display: flex; align-items: center; justify-content: center; border-radius: 50%;
-    flex-shrink: 0; min-width: 34px; min-height: 34px;
-  }
-  .search-submit-btn {
-    width: 40px; height: 40px; border-radius: 50%; border: none; color: #fff;
-    background: linear-gradient(135deg, #ff7b25 0%, #f95716 100%);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(249,87,22,.4); transition: transform .15s ease;
-  }
-  .search-submit-btn:active { transform: scale(.94); }
+    /* Tabs Bar */
+    .tabs-bar {
+      display: flex;
+      align-items: center;
+      height: 38px;
+      padding-top: 6px;
+      padding-left: 8px;
+      padding-right: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar {
+      display: none;
+    }
 
-  .shortcuts-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 14px;
-    width: 100%; max-width: 360px; margin-bottom: 30px;
-  }
-  .shortcut-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #fff; gap: 7px; }
-  .shortcut-item:active { transform: scale(.95); }
-  .icon-circle {
-    width: 50px; height: 50px; border-radius: 50%; background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 16px rgba(0,0,0,.28);
-  }
-  .icon-circle.wikipedia { color: #000; font-family: Georgia, serif; font-weight: bold; font-size: 24px; }
-  .icon-circle.facebook { background: #1877f2; color: #fff; }
-  .icon-circle.news { background: #ff5722; color: #fff; }
-  .shortcut-item span { font-size: 12px; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,.7); }
+    .tab {
+      display: flex;
+      align-items: center;
+      background: #292a2d;
+      color: #9aa0a6;
+      padding: 0 12px;
+      height: 32px;
+      border-radius: 8px 8px 0 0;
+      font-size: 12px;
+      gap: 8px;
+      min-width: 110px;
+      max-width: 180px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
 
-  .quick-access-section { width: 100%; max-width: 560px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; transition: opacity .2s ease, max-height .2s ease; overflow: hidden; }
-  .quick-access-section.hidden { display: none; }
-  .quick-access-title { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,.9); text-shadow: 0 2px 4px rgba(0,0,0,.6); }
-  .quick-access-title svg { color: #f97316; flex-shrink: 0; }
-  .quick-buttons-row { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
-  .pill-btn {
-    display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.15);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,.25); padding: 9px 16px; border-radius: 22px;
-    color: #fff; text-decoration: none; font-size: 13px; font-weight: 500; min-height: 40px;
-  }
-  .pill-btn:active { transform: scale(.97); }
-  .pill-icon { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex-shrink: 0; }
+    .tab.active {
+      background: #323639;
+      color: #f1f3f4;
+      font-weight: 500;
+    }
 
-  .footer { position: relative; margin-top: 26px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 340px; color: rgba(255,255,255,.55); font-size: 12px; }
-  .footer-line { flex: 1; height: 1px; background: rgba(255,255,255,.2); }
-  .footer-text { padding: 0 14px; letter-spacing: .4px; }
+    .tab:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.06);
+    }
 
-  /* Panel tuỳ chỉnh (trượt từ phải vào) */
-  .customize-panel {
-    position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
-    background: #202124; z-index: 100; padding: 18px 16px;
-    box-shadow: -8px 0 24px rgba(0,0,0,.4);
-    transition: right .25s cubic-bezier(.2,.9,.3,1);
-    overflow-y: auto; -webkit-overflow-scrolling: touch;
-  }
-  .customize-panel.open { right: 0; }
-  .customize-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-  .customize-title { font-size: 15px; font-weight: 600; color: #fff; }
-  .close-panel-btn { cursor: pointer; color: #9aa0a6; font-size: 16px; padding: 4px 8px; }
-  .section-label { display: block; font-size: 12px; font-weight: 600; color: #9aa0a6; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; margin-top: 18px; }
-  .section-label:first-of-type { margin-top: 0; }
-  .bg-options-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .bg-thumb { width: 100%; aspect-ratio: 1; border-radius: 8px; background-size: cover; background-position: center; cursor: pointer; border: 2px solid transparent; }
-  .bg-thumb.active { border-color: #f97316; }
-  .custom-url-input {
-    width: 100%; margin-top: 10px; background: #2b2e31; border: 1px solid #3c3f42;
-    border-radius: 8px; padding: 9px 12px; color: #e8eaed; font-size: 12.5px; outline: none;
-  }
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
-  .toggle-label { font-size: 13.5px; color: #e8eaed; }
-  .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; inset: 0; background: #3c3f42; border-radius: 22px; cursor: pointer; transition: background .15s; }
-  .slider::before { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .15s; }
-  .switch input:checked + .slider { background: #f97316; }
-  .switch input:checked + .slider::before { transform: translateX(18px); }
-  .panel-settings-link {
-    display: block; margin-top: 22px; padding: 11px; text-align: center;
-    border: 1px solid #3c3f42; border-radius: 8px; color: #e8eaed; font-size: 13px;
-    cursor: pointer; background: transparent;
-  }
+    .tab-icon {
+      width: 16px;
+      height: 16px;
+      background: #f97316;
+      border-radius: 3px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
 
-  @media (max-width: 340px) {
-    .logo-title { font-size: 38px; }
-    .shortcuts-grid { max-width: 300px; gap: 16px 10px; }
-    .icon-circle { width: 46px; height: 46px; }
+    .tab-close {
+      margin-left: auto;
+      font-size: 14px;
+      opacity: 0.6;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .tab-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      opacity: 1;
+    }
+
+    .add-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      color: #9aa0a6;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 4px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      transition: background 0.15s;
+    }
+    .add-tab:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .window-controls {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #9aa0a6;
+      font-size: 13px;
+      padding-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .win-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .win-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    .win-btn.close:hover {
+      background: #e81123;
+      color: #ffffff;
+    }
+
+    /* Address Bar / Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      padding: 0 12px;
+      gap: 12px;
+      background: #2b2e31;
+      position: relative;
+    }
+
+    .nav-btns {
+      display: flex;
+      gap: 8px;
+      color: #9aa0a6;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #9aa0a6;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .address-bar {
+      flex: 1;
+      height: 32px;
+      background: #202124;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      color: #9aa0a6;
+      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-width: 0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .address-bar:focus-within {
+      background: #292a2d;
+      border-color: #ff7b25;
+      color: #e8eaed;
+    }
+
+    .address-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e8eaed;
+      width: 100%;
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .address-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9aa0a6;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    .action-btn.starred {
+      color: #fbc02d;
+    }
+
+    /* Chrome Menu Dropdown */
+    .chrome-menu {
+      position: absolute;
+      top: 40px;
+      right: 12px;
+      width: 260px;
+      background: #292a2d;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      padding: 6px 0;
+      display: none;
+      flex-direction: column;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .chrome-menu.show {
+      display: flex;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: #e8eaed;
+      cursor: pointer;
+      gap: 12px;
+      transition: background 0.15s;
+    }
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .menu-item svg {
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+    .menu-shortcut {
+      margin-left: auto;
+      font-size: 11px;
+      color: #9aa0a6;
+    }
+    .menu-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 4px 0;
+    }
+    .menu-zoom-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #e8eaed;
+    }
+    .zoom-btn {
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .zoom-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Content Area with Sunset Background */
+    .viewport {
+      flex: 1;
+      position: relative;
+      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center bottom;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 60px;
+      padding-bottom: 40px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      transition: background-image 0.5s ease-in-out;
+    }
+
+    /* Overlay for atmospheric sunset lighting */
+    .viewport-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 75% 60%, rgba(255, 140, 50, 0.15) 0%, rgba(0, 0, 0, 0.4) 70%);
+      z-index: 1;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .content-container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 0 20px;
+      margin: auto 0;
+    }
+
+    /* Top Settings Gear Icon */
+    .settings-btn {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      z-index: 10;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.2s;
+      padding: 8px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .settings-btn:hover {
+      transform: rotate(60deg);
+      background: rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+    }
+
+    /* Customization Settings Side Drawer */
+    .customize-panel {
+      position: absolute;
+      top: 0; right: -360px;
+      width: 340px;
+      height: 100%;
+      background: rgba(24, 25, 28, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 90;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+    }
+
+    .customize-panel.open {
+      right: 0;
+    }
+
+    .customize-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+    }
+
+    .customize-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .close-panel-btn {
+      cursor: pointer;
+      opacity: 0.7;
+      font-size: 18px;
+      transition: opacity 0.15s;
+    }
+    .close-panel-btn:hover {
+      opacity: 1;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .bg-options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .bg-thumb {
+      height: 65px;
+      border-radius: 8px;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .bg-thumb:hover {
+      transform: scale(1.03);
+    }
+    .bg-thumb.active {
+      border-color: #ff7b25;
+    }
+
+    .custom-url-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: white;
+      font-size: 12px;
+      outline: none;
+    }
+    .custom-url-input:focus {
+      border-color: #ff7b25;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+    .toggle-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Switch Style */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      transition: .3s;
+      border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #ff7b25;
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* Egeo Logo Section */
+    .logo-container {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-title {
+      font-size: 56px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff7b25 0%, #ff5213 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      text-shadow: 0 4px 20px rgba(255, 82, 19, 0.3);
+      line-height: 1.1;
+    }
+
+    .logo-sub {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 400;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Search Box Container */
+    .search-wrapper {
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 6px 8px 6px 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s ease;
+      width: 100%;
+    }
+
+    .search-box:focus-within {
+      background: #ffffff;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 2px rgba(255, 123, 37, 0.4);
+    }
+
+    .search-icon-left {
+      color: #70757a;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 15px;
+      color: #202124;
+      font-family: inherit;
+      min-width: 0;
+    }
+
+    .search-input::placeholder {
+      color: #70757a;
+    }
+
+    .mic-icon-btn {
+      background: none;
+      border: none;
+      color: #5f6368;
+      padding: 8px;
+      margin-right: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s, transform 0.15s;
+      flex-shrink: 0;
+      min-width: 36px;
+      min-height: 36px;
+    }
+
+    .mic-icon-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: #202124;
+    }
+    .mic-icon-btn.listening {
+      color: #ea4335;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .search-submit-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff7b25 0%, #f95716 100%);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(249, 87, 22, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .search-submit-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(249, 87, 22, 0.5);
+    }
+
+    .search-submit-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Main Shortcuts Grid */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    .shortcut-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #ffffff;
+      gap: 8px;
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .shortcut-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .shortcut-item:active {
+      transform: scale(0.95);
+    }
+
+    .icon-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .shortcut-item:hover .icon-circle {
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+    }
+
+    .shortcut-item span {
+      font-size: 13px;
+      font-weight: 500;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+      letter-spacing: 0.2px;
+      text-align: center;
+    }
+
+    /* Shortcut Branding Colors */
+    .icon-circle.youtube { color: #ff0000; }
+    .icon-circle.gmail { color: #ea4335; }
+    .icon-circle.maps { color: #ea4335; }
+    .icon-circle.wikipedia {
+      background: #ffffff;
+      color: #000000;
+      font-family: 'Times New Roman', serif;
+      font-weight: bold;
+      font-size: 26px;
+    }
+    .icon-circle.facebook { background: #1877f2; color: #ffffff; }
+    .icon-circle.news { background: #ff5722; color: #ffffff; }
+
+    /* Quick Access Section (Truy cập nhanh) */
+    .quick-access-section {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .quick-access-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .quick-access-title svg {
+      color: #f97316;
+    }
+
+    .quick-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 10px 18px;
+      border-radius: 24px;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .pill-btn:active {
+      transform: scale(0.97);
+    }
+
+    .pill-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Page Footer */
+    .footer {
+      position: relative;
+      margin-top: 32px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 400px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+    }
+
+    .footer-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-text {
+      padding: 0 16px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Toast Notification System */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(32, 33, 36, 0.95);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .toast-container.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Browser Closed Overlay */
+    .browser-closed-overlay {
+      position: fixed;
+      inset: 0;
+      background: #121212;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #80868b;
+      gap: 16px;
+    }
+    .reopen-btn {
+      background: #ff7b25;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive Media Queries */
+    @media (max-width: 768px) {
+      .viewport {
+        padding-top: 40px;
+        padding-bottom: 24px;
+      }
+
+      .settings-btn {
+        top: 12px;
+        right: 12px;
+        padding: 6px;
+      }
+
+      .logo-title {
+        font-size: 44px;
+      }
+
+      .logo-sub {
+        font-size: 14px;
+      }
+
+      .search-wrapper {
+        margin-bottom: 28px;
+      }
+
+      .search-box {
+        padding: 4px 6px 4px 14px;
+      }
+
+      .shortcuts-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px 16px;
+        max-width: 360px;
+        margin-bottom: 32px;
+      }
+
+      .icon-circle {
+        width: 48px;
+        height: 48px;
+      }
+
+      .shortcut-item span {
+        font-size: 12px;
+      }
+
+      .quick-access-section {
+        align-items: center;
+      }
+
+      .quick-access-title {
+        align-self: flex-start;
+      }
+
+      .quick-buttons-row {
+        justify-content: flex-start;
+        gap: 10px;
+      }
+
+      .pill-btn {
+        padding: 8px 14px;
+        font-size: 12.5px;
+        min-height: 40px;
+      }
+
+      .window-controls {
+        display: none;
+      }
+
+      .address-actions .action-btn:not(:last-child) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tabs-bar {
+        height: 34px;
+      }
+
+      .tab {
+        height: 28px;
+        min-width: 90px;
+        font-size: 11px;
+      }
+
+      .toolbar {
+        height: 38px;
+        padding: 0 8px;
+        gap: 8px;
+      }
+
+      .address-bar {
+        height: 28px;
+        font-size: 12px;
+        padding: 0 8px;
+      }
+
+      .logo-title {
+        font-size: 38px;
+      }
+
+      .logo-container {
+        margin-bottom: 18px;
+      }
+
+      .shortcuts-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px 12px;
+      }
+
+      .quick-buttons-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .pill-btn {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .customize-panel {
+        width: 100vw;
+        right: -100vw;
+      }
+    }
+  </style>
+
+<style id="egeo-app-override">
+  /* Khi chạy trong WebView của app: ẩn chrome giả, chỉ giữ nội dung trang chủ */
+  .browser-header { display: none !important; }
+  .browser-window { height: 100% !important; }
+  .viewport { 
+    height: 100% !important; 
+    min-height: 100dvh !important;
+    padding-top: max(24px, env(safe-area-inset-top)) !important;
   }
+  body, html { background: #1a1a1a; }
 </style>
+
 </head>
 <body>
 
-<div class="viewport" id="viewport">
-  <div class="settings-btn" id="btnSettings" title="Tuỳ chỉnh trang này" aria-label="Tuỳ chỉnh trang này">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-    </svg>
+  <!-- Closed overlay -->
+  <div class="browser-closed-overlay" id="closedOverlay">
+    <h2>Trình duyệt đã đóng</h2>
+    <button class="reopen-btn" id="reopenBtn">Mở lại Egeo</button>
   </div>
 
-  <!-- Panel tuỳ chỉnh trang chủ (ảnh nền, quick access, độ tối) -->
-  <div class="customize-panel" id="customizePanel">
-    <div class="customize-header">
-      <span class="customize-title">Tuỳ chỉnh trang này</span>
-      <span class="close-panel-btn" id="closeCustomizeBtn">✕</span>
-    </div>
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toast">Thông báo</div>
 
-    <span class="section-label">Hình nền</span>
-    <div class="bg-options-grid" id="bgOptions"></div>
-    <input type="text" class="custom-url-input" id="customBgInput" placeholder="Hoặc dán URL ảnh tùy chỉnh…" />
-
-    <span class="section-label">Giao diện &amp; Tiện ích</span>
-    <div class="toggle-row">
-      <span class="toggle-label">Hiện Truy cập nhanh</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleQuickAccess" checked />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="toggle-row">
-      <span class="toggle-label">Làm tối nền (Dark overlay)</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleOverlay" checked />
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <button type="button" class="panel-settings-link" id="btnOpenBrowserSettings">Cài đặt trình duyệt (tìm kiếm, hồ sơ, API…)</button>
-  </div>
-
-  <div class="content-container">
-    <div class="logo-container">
-      <h1 class="logo-title">Egeo</h1>
-      <p class="logo-sub">Tìm kiếm</p>
-    </div>
-
-    <form class="search-wrapper" id="homeForm" autocomplete="off">
-      <div class="search-box">
-        <div class="search-icon-left">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+  <div class="browser-window" id="browserWindow">
+    <!-- Top Chrome Tabs Header -->
+    <div class="browser-header">
+      <div class="tabs-bar" id="tabsBar">
+        <div class="tab active" data-id="1">
+          <div class="tab-icon">E</div>
+          <span class="tab-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Egeo</span>
+          <span class="tab-close" onclick="closeTab(event, 1)">×</span>
         </div>
-        <input type="search" class="search-input" id="homeQ" placeholder="Tìm kiếm hoặc nhập URL" autofocus spellcheck="false" enterkeyhint="search" />
-        <button type="button" class="mic-btn" id="btnVoiceHome" title="Tìm bằng giọng nói">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
-        </button>
-        <button type="submit" class="search-submit-btn" title="Tìm kiếm">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
+        <div class="add-tab" id="addTabBtn" title="Mở thẻ mới">+</div>
+        <div class="window-controls">
+          <div class="win-btn" id="minBtn" title="Thu nhỏ">&#8211;</div>
+          <div class="win-btn" id="maxBtn" title="Phóng to">&#9633;</div>
+          <div class="win-btn close" id="closeWinBtn" title="Đóng">&#10005;</div>
+        </div>
       </div>
-    </form>
 
-    <div class="shortcuts-grid" id="shortcuts"></div>
+      <!-- Address Bar / Toolbar -->
+      <div class="toolbar">
+        <div class="nav-btns">
+          <button class="nav-btn" id="backBtn" title="Quay lại">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="nav-btn" id="forwardBtn" title="Tiến tới">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="nav-btn" id="refreshBtn" title="Tải lại trang">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
 
-    <div class="quick-access-section" id="quickAccessSection">
-      <div class="quick-access-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-        <span>Truy cập nhanh</span>
+        <div class="address-bar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" class="address-input" id="topAddressInput" value="https://egeo.search" placeholder="Nhập địa chỉ web hoặc tìm kiếm..." />
+        </div>
+
+        <div class="address-actions">
+          <!-- Bookmark Star Button -->
+          <div class="action-btn" id="starBtn" title="Thêm vào dấu trang">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <!-- Download Button -->
+          <div class="action-btn" id="downloadBtn" title="Tệp đã tải xuống">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <!-- 3 Dots Chrome Menu Toggle Button -->
+          <div class="action-btn" id="chromeMenuBtn" title="Tùy chọn trình duyệt">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </div>
+        </div>
+
+        <!-- Chrome 3-Dot Dropdown UI -->
+        <div class="chrome-menu" id="chromeMenu">
+          <div class="menu-item" id="menuNewTab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Thẻ mới</span>
+            <span class="menu-shortcut">Ctrl+T</span>
+          </div>
+          <div class="menu-item" id="menuNewWin">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Cửa sổ mới</span>
+            <span class="menu-shortcut">Ctrl+N</span>
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-item" id="menuHistory">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Nhật ký truy cập</span>
+            <span class="menu-shortcut">Ctrl+H</span>
+          </div>
+          <div class="menu-item" id="menuDownloads">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Tệp đã tải xuống</span>
+            <span class="menu-shortcut">Ctrl+J</span>
+          </div>
+          <div class="menu-item" id="menuBookmarks">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Dấu trang</span>
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-zoom-controls">
+            <span>Thu phóng</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="zoom-btn" id="zoomOutBtn">-</div>
+              <span id="zoomLevel">100%</span>
+              <div class="zoom-btn" id="zoomInBtn">+</div>
+            </div>
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-item" id="menuSettings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Cài đặt & Tùy chỉnh</span>
+          </div>
+        </div>
       </div>
-      <div class="quick-buttons-row" id="chips"></div>
     </div>
 
-    <div class="footer"><div class="footer-line"></div><span class="footer-text">Egeo</span><div class="footer-line"></div></div>
+    <!-- Main Viewport with Background -->
+    <div class="viewport" id="viewport">
+      <div class="viewport-overlay" id="viewportOverlay"></div>
+
+      <!-- Settings Gear Icon Top Right -->
+      <div class="settings-btn" id="openCustomizeBtn" title="Tùy chỉnh giao diện">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+
+      <!-- Settings Customization Panel -->
+      <div class="customize-panel" id="customizePanel">
+        <div class="customize-header">
+          <span class="customize-title">Tùy chỉnh trang này</span>
+          <span class="close-panel-btn" id="closeCustomizeBtn">✕</span>
+        </div>
+
+        <div>
+          <span class="section-label">Hình nền</span>
+          <div class="bg-options-grid">
+            <div class="bg-thumb active" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80')" data-url="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80"></div>
+            <div class="bg-thumb" style="background-image: url('https://images.unsplash.com/photo-1511497584788-8767611136f6?auto=format&fit=crop&w=400&q=80')" data-url="https://images.unsplash.com/photo-1511497584788-8767611136f6?auto=format&fit=crop&w=1920&q=80"></div>
+            <div class="bg-thumb" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80')" data-url="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80"></div>
+            <div class="bg-thumb" style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80')" data-url="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80"></div>
+          </div>
+          <div style="margin-top: 10px;">
+            <input type="text" class="custom-url-input" id="customBgInput" placeholder="Hoặc dán URL ảnh tùy chỉnh..." />
+          </div>
+        </div>
+
+        <div>
+          <span class="section-label">Giao diện & Tiện ích</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Hiện Truy cập nhanh</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleQuickAccess" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">Làm tối nền (Dark overlay)</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleOverlay" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-container">
+        <!-- Logo -->
+        <div class="logo-container">
+          <h1 class="logo-title">Egeo</h1>
+          <p class="logo-sub">Tìm kiếm</p>
+        </div>
+
+        <!-- Search Form -->
+        <form class="search-wrapper" id="mainSearchForm" action="https://www.google.com/search" method="get">
+          <div class="search-box">
+            <div class="search-icon-left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input type="text" name="q" class="search-input" id="searchInput" placeholder="Tìm kiếm hoặc nhập URL" autofocus autocomplete="off" />
+            
+            <!-- Mic Icon -->
+            <button type="button" class="mic-icon-btn" id="micBtn" title="Tìm kiếm bằng giọng nói">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+              </svg>
+            </button>
+
+            <!-- Search Orange Circular Button -->
+            <button type="submit" class="search-submit-btn" title="Tìm kiếm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <!-- Main Shortcut Buttons Grid -->
+        <div class="shortcuts-grid">
+          <a href="https://www.youtube.com" target="_blank" class="shortcut-item" data-name="YouTube">
+            <div class="icon-circle youtube">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            <span>YouTube</span>
+          </a>
+
+          <a href="https://mail.google.com" target="_blank" class="shortcut-item" data-name="Gmail">
+            <div class="icon-circle gmail">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+              </svg>
+            </div>
+            <span>Gmail</span>
+          </a>
+
+          <a href="https://maps.google.com" target="_blank" class="shortcut-item" data-name="Google Maps">
+            <div class="icon-circle maps">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
+            <span>Maps</span>
+          </a>
+
+          <a href="https://vi.wikipedia.org" target="_blank" class="shortcut-item" data-name="Wikipedia">
+            <div class="icon-circle wikipedia">
+              W
+            </div>
+            <span>Wikipedia</span>
+          </a>
+
+          <a href="https://www.facebook.com" target="_blank" class="shortcut-item" data-name="Facebook">
+            <div class="icon-circle facebook">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </div>
+            <span>Facebook</span>
+          </a>
+
+          <a href="https://news.google.com" target="_blank" class="shortcut-item" data-name="Tin tức">
+            <div class="icon-circle news">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+              </svg>
+            </div>
+            <span>Tin tức</span>
+          </a>
+        </div>
+
+        <!-- Quick Access Section -->
+        <div class="quick-access-section" id="quickAccessSection">
+          <div class="quick-access-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Truy cập nhanh</span>
+          </div>
+
+          <div class="quick-buttons-row">
+            <a href="https://www.google.com/search?q=thời+tiết+hôm+nay" target="_blank" class="pill-btn">
+              <div class="pill-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbcfe8" stroke-width="2">
+                  <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1564 20.206 10.2315 17.9002 10.0242C17.4332 6.58784 14.475 3.9 10.8889 3.9C7.81056 3.9 5.19835 5.8647 4.25424 8.61868C2.3999 9.38374 1 11.2335 1 13.5C1 16.5376 3.46243 19 6.5 19H17.5Z" fill="rgba(255,255,255,0.2)"/>
+                  <circle cx="12" cy="7" r="2.5" fill="#fde047" stroke="none"/>
+                </svg>
+              </div>
+              <span>thời tiết hôm nay</span>
+            </a>
+
+            <a href="https://www.google.com/search?q=giá+vàng+hôm+nay" target="_blank" class="pill-btn">
+              <div class="pill-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24">
+                  <path d="M4 11h16l-2 8H6l-2-8zm1-5h14l1.5 3H3.5L5 6z"/>
+                </svg>
+              </div>
+              <span>giá vàng</span>
+            </a>
+
+            <a href="https://www.google.com/search?q=tỷ+giá+usd" target="_blank" class="pill-btn">
+              <div class="pill-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 6v12M9.5 9.5c0-1.38 1.12-2 2.5-2s2.5.62 2.5 2c0 2.5-5 2-5 4.5 0 1.38 1.12 2 2.5 2s2.5-.62 2.5-2"/>
+                </svg>
+              </div>
+              <span>tỷ giá usd</span>
+            </a>
+
+            <a href="https://www.google.com/search?q=lịch+âm+hôm+nay" target="_blank" class="pill-btn">
+              <div class="pill-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+                </svg>
+              </div>
+              <span>lịch âm hôm nay</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="footer">
+          <div class="footer-line"></div>
+          <span class="footer-text">Egeo</span>
+          <div class="footer-line"></div>
+        </div>
+
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-(function () {
-  "use strict";
+  <script>
+    // --- Helper Toast Notification ---
+    const toast = document.getElementById('toast');
+    let toastTimeout;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
 
-  var STORAGE_KEY = "egeo_home_prefs_v1";
-  var BG_PRESETS = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=70",
-    "https://images.unsplash.com/photo-1511497584788-8767611136f6?auto=format&fit=crop&w=1600&q=70",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=70",
-    "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=70"
-  ];
+    // --- Dynamic Tabs Handler ---
+    let tabCount = 1;
+    const tabsBar = document.getElementById('tabsBar');
+    const addTabBtn = document.getElementById('addTabBtn');
 
-  function loadPrefs() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return {};
-      return JSON.parse(raw);
-    } catch (e) { return {}; }
-  }
-  function savePrefs(prefs) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs)); } catch (e) {}
-  }
-  var prefs = loadPrefs();
+    addTabBtn.addEventListener('click', () => {
+      tabCount++;
+      const newTab = document.createElement('div');
+      newTab.className = 'tab active';
+      newTab.dataset.id = tabCount;
+      newTab.innerHTML = `
+        <div class="tab-icon">E</div>
+        <span class="tab-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Thẻ mới ${tabCount}</span>
+        <span class="tab-close" onclick="closeTab(event, ${tabCount})">×</span>
+      `;
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tabsBar.insertBefore(newTab, addTabBtn);
+      showToast('Đã mở thẻ mới');
 
-  function applyBackground(url) {
-    document.documentElement.style.setProperty("--bg-url", "url('" + url + "')");
-  }
-  function applyQuickAccess(show) {
-    document.getElementById("quickAccessSection").classList.toggle("hidden", !show);
-  }
-  function applyOverlay(dark) {
-    document.documentElement.classList.toggle("no-overlay", !dark);
-  }
-
-  if (prefs.bgUrl) applyBackground(prefs.bgUrl);
-  applyQuickAccess(prefs.quickAccess !== false);
-  applyOverlay(prefs.overlay !== false);
-
-  // --- Panel tuỳ chỉnh ---
-  var bgOptionsRoot = document.getElementById("bgOptions");
-  BG_PRESETS.forEach(function (url) {
-    var thumb = document.createElement("div");
-    thumb.className = "bg-thumb" + (prefs.bgUrl === url || (!prefs.bgUrl && url === BG_PRESETS[0]) ? " active" : "");
-    thumb.style.backgroundImage = "url('" + url + "')";
-    thumb.addEventListener("click", function () {
-      applyBackground(url);
-      prefs.bgUrl = url;
-      savePrefs(prefs);
-      Array.prototype.forEach.call(bgOptionsRoot.children, function (c) { c.classList.remove("active"); });
-      thumb.classList.add("active");
+      newTab.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('tab-close')) {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          newTab.classList.add('active');
+        }
+      });
     });
-    bgOptionsRoot.appendChild(thumb);
-  });
 
-  var customBgInput = document.getElementById("customBgInput");
-  customBgInput.addEventListener("change", function () {
-    var url = customBgInput.value.trim();
-    if (!url) return;
-    applyBackground(url);
-    prefs.bgUrl = url;
-    savePrefs(prefs);
-    Array.prototype.forEach.call(bgOptionsRoot.children, function (c) { c.classList.remove("active"); });
-  });
-
-  var toggleQuickAccess = document.getElementById("toggleQuickAccess");
-  toggleQuickAccess.checked = prefs.quickAccess !== false;
-  toggleQuickAccess.addEventListener("change", function () {
-    applyQuickAccess(toggleQuickAccess.checked);
-    prefs.quickAccess = toggleQuickAccess.checked;
-    savePrefs(prefs);
-  });
-
-  var toggleOverlay = document.getElementById("toggleOverlay");
-  toggleOverlay.checked = prefs.overlay !== false;
-  toggleOverlay.addEventListener("change", function () {
-    applyOverlay(toggleOverlay.checked);
-    prefs.overlay = toggleOverlay.checked;
-    savePrefs(prefs);
-  });
-
-  var panel = document.getElementById("customizePanel");
-  document.getElementById("btnSettings").addEventListener("click", function () { panel.classList.add("open"); });
-  document.getElementById("closeCustomizeBtn").addEventListener("click", function () { panel.classList.remove("open"); });
-
-  document.getElementById("btnOpenBrowserSettings").addEventListener("click", function () {
-    if (window.AndroidBridge && typeof window.AndroidBridge.openSettings === "function") {
-      window.AndroidBridge.openSettings();
+    function closeTab(event, id) {
+      event.stopPropagation();
+      const tabToRemove = document.querySelector(`.tab[data-id="${id}"]`);
+      if (tabToRemove) {
+        const isCurrentActive = tabToRemove.classList.contains('active');
+        tabToRemove.remove();
+        showToast('Đã đóng thẻ');
+        
+        if (isCurrentActive) {
+          const remainingTabs = document.querySelectorAll('.tab');
+          if (remainingTabs.length > 0) {
+            remainingTabs[remainingTabs.length - 1].classList.add('active');
+          } else {
+            addTabBtn.click();
+          }
+        }
+      }
     }
-  });
 
-  // --- Shortcuts & Quick access ---
-  var SHORTCUTS = [
-    { id: "youtube", label: "YouTube", url: "https://www.youtube.com",
-      icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>' },
-    { id: "gmail", label: "Gmail", url: "https://mail.google.com",
-      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="#ea4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>' },
-    { id: "maps", label: "Maps", url: "https://maps.google.com",
-      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="#ea4335"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' },
-    { id: "wikipedia", label: "Wikipedia", url: "https://vi.wikipedia.org", icon: "W", isText: true },
-    { id: "facebook", label: "Facebook", url: "https://www.facebook.com",
-      icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
-    { id: "news", label: "Tin tức", url: "https://news.google.com",
-      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>' }
-  ];
+    // --- Chrome 3-Dot Menu Handler ---
+    const chromeMenuBtn = document.getElementById('chromeMenuBtn');
+    const chromeMenu = document.getElementById('chromeMenu');
 
-  var TRENDS = [
-    { label: "thời tiết hôm nay", icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6.6 6.6 0 0 0-12.6-1.9A4.6 4.6 0 0 0 6.5 19h11z" fill="rgba(255,255,255,.2)"/><circle cx="12" cy="7" r="2.5" fill="#fde047" stroke="none"/></svg>' },
-    { label: "giá vàng", icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#fbbf24"><path d="M4 11h16l-2 8H6l-2-8zm1-5h14l1.5 3H3.5L5 6z"/></svg>' },
-    { label: "tỷ giá usd", icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M9.5 9.5c0-1.38 1.12-2 2.5-2s2.5.62 2.5 2c0 2.5-5 2-5 4.5 0 1.38 1.12 2 2.5 2s2.5-.62 2.5-2"/></svg>' },
-    { label: "lịch âm hôm nay", icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' }
-  ];
+    chromeMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      chromeMenu.classList.toggle('show');
+    });
 
-  var scRoot = document.getElementById("shortcuts");
-  SHORTCUTS.forEach(function (item) {
-    var a = document.createElement("a");
-    a.href = "#";
-    a.className = "shortcut-item";
-    var circleClass = "icon-circle" + (item.id === "wikipedia" ? " wikipedia" : item.id === "facebook" ? " facebook" : item.id === "news" ? " news" : "");
-    a.innerHTML = '<div class="' + circleClass + '">' + item.icon + '</div><span>' + item.label + "</span>";
-    a.addEventListener("click", function (e) { e.preventDefault(); openUrl(item.url); });
-    scRoot.appendChild(a);
-  });
+    document.addEventListener('click', (e) => {
+      if (!chromeMenu.contains(e.target) && e.target !== chromeMenuBtn) {
+        chromeMenu.classList.remove('show');
+      }
+    });
 
-  var chipsRoot = document.getElementById("chips");
-  TRENDS.forEach(function (t) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "pill-btn";
-    b.innerHTML = '<span class="pill-icon">' + t.icon + '</span><span>' + t.label + "</span>";
-    b.addEventListener("click", function () { doSearch(t.label); });
-    chipsRoot.appendChild(b);
-  });
+    // Menu Item Actions
+    document.getElementById('menuNewTab').addEventListener('click', () => {
+      addTabBtn.click();
+      chromeMenu.classList.remove('show');
+    });
 
-  // --- Điều hướng / tìm kiếm thật ---
-  function isUrl(str) {
-    return /^(https?:\/\/)|^(www\.)|^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$|\?|:)/i.test(str.trim());
-  }
-  function openUrl(url) {
-    if (window.AndroidBridge && typeof window.AndroidBridge.openUrl === "function") {
-      window.AndroidBridge.openUrl(url);
-    } else {
-      window.open(url, "_blank");
-    }
-  }
-  function doSearch(query) {
-    if (window.AndroidBridge && typeof window.AndroidBridge.search === "function") {
-      window.AndroidBridge.search(query);
-    } else {
-      window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank");
-    }
-  }
-  function submitQuery(raw) {
-    var q = (raw != null ? raw : homeQ.value).trim();
-    if (!q) return;
-    if (isUrl(q)) {
-      var url = /^https?:\/\//i.test(q) ? q : "https://" + q;
-      openUrl(url);
-    } else {
-      doSearch(q);
-    }
-  }
+    document.getElementById('menuNewWin').addEventListener('click', () => {
+      window.open(window.location.href, '_blank');
+      chromeMenu.classList.remove('show');
+    });
 
-  var homeQ = document.getElementById("homeQ");
-  document.getElementById("homeForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    submitQuery();
-  });
+    document.getElementById('menuHistory').addEventListener('click', () => {
+      showToast('Đang mở Nhật ký truy cập...');
+      chromeMenu.classList.remove('show');
+    });
 
-  // --- Giọng nói (Web Speech API thật, cần app cấp RECORD_AUDIO) ---
-  var recognition = null;
-  if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SR();
-    recognition.lang = "vi-VN";
-    recognition.interimResults = false;
-    recognition.onresult = function (ev) {
-      var text = ev.results[0][0].transcript;
-      homeQ.placeholder = "Tìm kiếm hoặc nhập URL";
-      submitQuery(text);
-    };
-    recognition.onerror = function () {
-      homeQ.placeholder = "Không nhận diện được, thử lại!";
-      setTimeout(function () { homeQ.placeholder = "Tìm kiếm hoặc nhập URL"; }, 2000);
-    };
-    recognition.onend = function () { homeQ.placeholder = "Tìm kiếm hoặc nhập URL"; };
-  }
-  document.getElementById("btnVoiceHome").addEventListener("click", function () {
-    if (!recognition) {
-      alert("Thiết bị/WebView này không hỗ trợ nhận dạng giọng nói.");
-      return;
-    }
-    homeQ.placeholder = "Đang lắng nghe…";
-    try { recognition.start(); } catch (e) { homeQ.placeholder = "Tìm kiếm hoặc nhập URL"; }
-  });
+    document.getElementById('menuDownloads').addEventListener('click', () => {
+      showToast('Không có tệp nào gần đây');
+      chromeMenu.classList.remove('show');
+    });
 
-  window.EgeoHome = {
-    setQuery: function (t) { homeQ.value = t || ""; }
-  };
-})();
-</script>
+    document.getElementById('menuBookmarks').addEventListener('click', () => {
+      showToast('Danh sách dấu trang của bạn');
+      chromeMenu.classList.remove('show');
+    });
+
+    document.getElementById('menuSettings').addEventListener('click', () => {
+      chromeMenu.classList.remove('show');
+      document.getElementById('customizePanel').classList.add('open');
+    });
+
+    // Zoom Controls
+    let zoomVal = 100;
+    const zoomLevel = document.getElementById('zoomLevel');
+    const contentContainer = document.querySelector('.content-container');
+
+    document.getElementById('zoomInBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (zoomVal < 150) {
+        zoomVal += 10;
+        zoomLevel.textContent = zoomVal + '%';
+        contentContainer.style.transform = `scale(${zoomVal / 100})`;
+      }
+    });
+
+    document.getElementById('zoomOutBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (zoomVal > 70) {
+        zoomVal -= 10;
+        zoomLevel.textContent = zoomVal + '%';
+        contentContainer.style.transform = `scale(${zoomVal / 100})`;
+      }
+    });
+
+    // --- Customization Drawer (Gear Icon) ---
+    const openCustomizeBtn = document.getElementById('openCustomizeBtn');
+    const closeCustomizeBtn = document.getElementById('closeCustomizeBtn');
+    const customizePanel = document.getElementById('customizePanel');
+    const viewport = document.getElementById('viewport');
+
+    openCustomizeBtn.addEventListener('click', () => {
+      customizePanel.classList.add('open');
+    });
+
+    closeCustomizeBtn.addEventListener('click', () => {
+      customizePanel.classList.remove('open');
+    });
+
+    // Wallpaper Switcher
+    const bgThumbs = document.querySelectorAll('.bg-thumb');
+    bgThumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        bgThumbs.forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        const bgUrl = thumb.dataset.url;
+        viewport.style.backgroundImage = `url('${bgUrl}')`;
+        showToast('Đã đổi hình nền');
+      });
+    });
+
+    // Custom Background Input
+    const customBgInput = document.getElementById('customBgInput');
+    customBgInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && customBgInput.value.trim() !== '') {
+        viewport.style.backgroundImage = `url('${customBgInput.value.trim()}')`;
+        showToast('Đã áp dụng hình nền mới');
+      }
+    });
+
+    // Toggles inside customize panel
+    const toggleQuickAccess = document.getElementById('toggleQuickAccess');
+    const quickAccessSection = document.getElementById('quickAccessSection');
+    toggleQuickAccess.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        quickAccessSection.style.display = 'flex';
+      } else {
+        quickAccessSection.style.display = 'none';
+      }
+    });
+
+    const toggleOverlay = document.getElementById('toggleOverlay');
+    const viewportOverlay = document.getElementById('viewportOverlay');
+    toggleOverlay.addEventListener('change', (e) => {
+      viewportOverlay.style.opacity = e.target.checked ? '1' : '0';
+    });
+
+    // --- Window Buttons Actions ---
+    const browserWindow = document.getElementById('browserWindow');
+    const minBtn = document.getElementById('minBtn');
+    const maxBtn = document.getElementById('maxBtn');
+    const closeWinBtn = document.getElementById('closeWinBtn');
+    const closedOverlay = document.getElementById('closedOverlay');
+    const reopenBtn = document.getElementById('reopenBtn');
+
+    minBtn.addEventListener('click', () => {
+      browserWindow.classList.toggle('minimized');
+      showToast(browserWindow.classList.contains('minimized') ? 'Đã thu nhỏ cửa sổ' : 'Đã khôi phục cửa sổ');
+    });
+
+    maxBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        showToast('Chế độ toàn màn hình');
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    closeWinBtn.addEventListener('click', () => {
+      closedOverlay.style.display = 'flex';
+    });
+
+    reopenBtn.addEventListener('click', () => {
+      closedOverlay.style.display = 'none';
+      browserWindow.classList.remove('minimized');
+    });
+
+    // --- Toolbar Actions ---
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const starBtn = document.getElementById('starBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    backBtn.addEventListener('click', () => showToast('Không có trang trước'));
+    forwardBtn.addEventListener('click', () => showToast('Không có trang tiếp theo'));
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.querySelector('svg').style.transform = 'rotate(360deg)';
+      refreshBtn.querySelector('svg').style.transition = 'transform 0.5s ease';
+      setTimeout(() => {
+        refreshBtn.querySelector('svg').style.transform = 'none';
+        refreshBtn.querySelector('svg').style.transition = 'none';
+      }, 500);
+      showToast('Đã tải lại trang');
+    });
+
+    starBtn.addEventListener('click', () => {
+      starBtn.classList.toggle('starred');
+      if (starBtn.classList.contains('starred')) {
+        starBtn.querySelector('svg').setAttribute('fill', '#fbc02d');
+        showToast('Đã thêm Egeo vào Dấu trang!');
+      } else {
+        starBtn.querySelector('svg').setAttribute('fill', 'none');
+        showToast('Đã xóa khỏi Dấu trang');
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => showToast('Không có tệp đang tải xuống'));
+
+    // --- Top Address Bar Handling ---
+    const topAddressInput = document.getElementById('topAddressInput');
+    topAddressInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        let val = topAddressInput.value.trim();
+        if (!val.startsWith('http://') && !val.startsWith('https://')) {
+          val = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+        }
+        window.open(val, '_blank');
+      }
+    });
+
+    // --- Search Input Handling ---
+    const mainSearchForm = document.getElementById('mainSearchForm');
+    const searchInput = document.getElementById('searchInput');
+    const micBtn = document.getElementById('micBtn');
+
+    mainSearchForm.addEventListener('submit', (e) => {
+      const q = searchInput.value.trim();
+      if (q.startsWith('http://') || q.startsWith('https://') || (q.includes('.') && !q.includes(' '))) {
+        e.preventDefault();
+        const url = q.startsWith('http') ? q : 'https://' + q;
+        window.open(url, '_blank');
+      }
+    });
+
+    // Voice Search Functionality
+    micBtn.addEventListener('click', () => {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'vi-VN';
+
+        micBtn.classList.add('listening');
+        searchInput.placeholder = "Đang lắng nghe giọng nói...";
+
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          searchInput.value = transcript;
+          micBtn.classList.remove('listening');
+          mainSearchForm.submit();
+        };
+
+        recognition.onerror = function() {
+          micBtn.classList.remove('listening');
+          searchInput.placeholder = "Không thể nhận diện giọng nói. Thử lại!";
+          setTimeout(() => {
+            searchInput.placeholder = "Tìm kiếm hoặc nhập URL";
+          }, 2000);
+        };
+
+        recognition.onend = function() {
+          micBtn.classList.remove('listening');
+        };
+
+        recognition.start();
+      } else {
+        showToast("Trình duyệt không hỗ trợ nhận diện giọng nói");
+      }
+    });
+  </script>
 </body>
 </html>

@@ -135,44 +135,5 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Thanh điều hướng dưới: bỏ back/forward/reload (đã chuyển lên trên
-         cạnh ô địa chỉ, giống mockup) - chỉ giữ số tab + tab mới -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/chromeBackground"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:gravity="center_vertical"
-        android:weightSum="2">
-
-        <TextView
-            android:id="@+id/btnTabCount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="12dp"
-            android:gravity="center"
-            android:background="@drawable/bg_tab_count"
-            android:textSize="12.5sp"
-            android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary"
-            android:text="1" />
-
-        <ImageButton
-            android:id="@+id/btnNewTabBottom"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="24dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_new_tab"
-            android:src="@android:drawable/ic_menu_add"
-            app:tint="?attr/iconMuted" />
-
-    </LinearLayout>
 
 </LinearLayout>

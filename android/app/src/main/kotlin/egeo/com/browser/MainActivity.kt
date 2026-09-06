@@ -119,7 +119,6 @@ open class MainActivity : AppCompatActivity() {
     private fun onTabsChanged() {
         renderTabStrip()
         bindCurrentTabToUi()
-        binding.btnTabCount.text = tabManager.tabCount.toString()
         egeo.com.browser.api.ApiEventBus.emit(
             "tabs_changed",
             org.json.JSONObject().put("tab_count", tabManager.tabCount)
@@ -323,8 +322,6 @@ open class MainActivity : AppCompatActivity() {
         binding.btnReload.setOnClickListener {
             tabManager.currentTab?.webView?.reload()
         }
-        binding.btnTabCount.setOnClickListener { showTabSwitcher() }
-        binding.btnNewTabBottom.setOnClickListener { openNewTab() }
     }
 
     private fun showOverflowMenu(anchor: View) {

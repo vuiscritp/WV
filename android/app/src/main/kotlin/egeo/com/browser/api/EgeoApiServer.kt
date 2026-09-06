@@ -23,10 +23,12 @@ class EgeoApiServer(
 
     override fun serve(session: IHTTPSession): Response {
         return try {
-            if (isWebSocketRequested(session)) {
+            if (isWebSocketUpgradeRequest(session)) {
                 if (!isAuthorizedForWebSocket(session)) {
                     return newFixedLengthResponse(Response.Status.UNAUTHORIZED, "text/plain", "Unauthorized")
                 }
+                // Việc bắt tay (handshake) WebSocket thật sự do NanoWSD.serve()
+                // (lớp cha) xử lý, nó sẽ tự gọi openWebSocket() bên dưới.
                 super.serve(session)
             } else {
                 routeRest(session)
@@ -34,6 +36,21 @@ class EgeoApiServer(
         } catch (e: Exception) {
             jsonError(Response.Status.INTERNAL_ERROR, "internal_error", e.message ?: "unknown")
         }
+    }
+
+    /**
+     * Tự kiểm tra header chuẩn RFC 6455 (Connection: Upgrade + Upgrade: websocket)
+     * thay vì gọi thẳng 1 API cụ thể của NanoWSD - tránh phụ thuộc vào đúng tên
+     * hàm/API nội bộ của thư viện (rủi ro sai tên đã từng gặp). Việc bắt tay
+     * WebSocket thật sự vẫn do super.serve() của NanoWSD đảm nhiệm.
+     */
+    private fun isWebSocketUpgradeRequest(session: IHTTPSession): Boolean {
+        val connection = session.headers.entries
+            .firstOrNull { it.key.equals("connection", ignoreCase = true) }?.value
+        val upgrade = session.headers.entries
+            .firstOrNull { it.key.equals("upgrade", ignoreCase = true) }?.value
+        return connection?.contains("upgrade", ignoreCase = true) == true &&
+            upgrade?.contains("websocket", ignoreCase = true) == true
     }
 
     override fun openWebSocket(handshake: IHTTPSession): WebSocket {

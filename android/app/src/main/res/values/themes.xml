@@ -1,52 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Egeo.Morning" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/morning_primary</item>
-        <item name="colorPrimaryVariant">@color/morning_primary_variant</item>
-        <item name="colorSecondary">@color/morning_accent</item>
-        <item name="android:colorBackground">@color/morning_background</item>
-        <item name="colorSurface">@color/morning_surface</item>
-        <item name="android:textColorPrimary">@color/morning_text_primary</item>
-        <item name="android:textColorSecondary">@color/morning_text_secondary</item>
-        <item name="android:statusBarColor">@color/morning_primary</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-    </style>
-
-    <style name="Theme.Egeo.Day" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/day_primary</item>
-        <item name="colorPrimaryVariant">@color/day_primary_variant</item>
-        <item name="colorSecondary">@color/day_accent</item>
-        <item name="android:colorBackground">@color/day_background</item>
-        <item name="colorSurface">@color/day_surface</item>
-        <item name="android:textColorPrimary">@color/day_text_primary</item>
-        <item name="android:textColorSecondary">@color/day_text_secondary</item>
-        <item name="android:statusBarColor">@color/day_primary_variant</item>
+    <!-- Giao diện tối cố định duy nhất - không còn chọn theme/biến thể sáng-tối,
+         khớp với thiết kế mockup (luôn dark chrome kiểu Chrome/Cốc Cốc). -->
+    <style name="Theme.Egeo" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/app_primary</item>
+        <item name="colorPrimaryVariant">@color/app_primary_variant</item>
+        <item name="colorSecondary">@color/app_accent</item>
+        <item name="android:colorBackground">@color/app_background</item>
+        <item name="colorSurface">@color/app_surface</item>
+        <item name="android:textColorPrimary">@color/app_text_primary</item>
+        <item name="android:textColorSecondary">@color/app_text_secondary</item>
+        <item name="chromeBackground">@color/app_chrome_bg</item>
+        <item name="addressBarBackground">@color/app_address_bg</item>
+        <item name="addressBarBorder">@color/app_address_border</item>
+        <item name="iconMuted">@color/app_icon_muted</item>
+        <item name="android:statusBarColor">@color/app_chrome_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
 
-    <style name="Theme.Egeo.Night" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/night_primary</item>
-        <item name="colorPrimaryVariant">@color/night_primary_variant</item>
-        <item name="colorSecondary">@color/night_accent</item>
-        <item name="android:colorBackground">@color/night_background</item>
-        <item name="colorSurface">@color/night_surface</item>
-        <item name="android:textColorPrimary">@color/night_text_primary</item>
-        <item name="android:textColorSecondary">@color/night_text_secondary</item>
-        <item name="android:statusBarColor">@color/night_background</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
-    </style>
-
-    <style name="Theme.Egeo.Midnight" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/midnight_primary</item>
-        <item name="colorPrimaryVariant">@color/midnight_primary_variant</item>
-        <item name="colorSecondary">@color/midnight_accent</item>
-        <item name="android:colorBackground">@color/midnight_background</item>
-        <item name="colorSurface">@color/midnight_surface</item>
-        <item name="android:textColorPrimary">@color/midnight_text_primary</item>
-        <item name="android:textColorSecondary">@color/midnight_text_secondary</item>
-        <item name="android:statusBarColor">@color/midnight_background</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    <style name="SettingsSectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
 </resources>

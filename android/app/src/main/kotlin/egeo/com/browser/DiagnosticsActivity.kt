@@ -6,7 +6,6 @@ import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import egeo.com.browser.databinding.ActivityDiagnosticsBinding
 import egeo.com.browser.profile.ProfileHolder
-import egeo.com.browser.theme.ThemeManager
 import egeo.com.browser.util.ProcessUtils
 
 class DiagnosticsActivity : AppCompatActivity() {
@@ -14,7 +13,7 @@ class DiagnosticsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDiagnosticsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(ThemeManager.resolveStyleRes(this))
+        setTheme(R.style.Theme_Egeo)
         super.onCreate(savedInstanceState)
 
         binding = ActivityDiagnosticsBinding.inflate(layoutInflater)
@@ -24,8 +23,12 @@ class DiagnosticsActivity : AppCompatActivity() {
     }
 
     private fun buildDiagnosticsText(): String {
-        val processName = ProcessUtils.currentProcessName(this)
-        val profileId = ProfileHolder.currentProfileId
+        val actualProcessName = ProcessUtils.currentProcessName(this)
+        // DiagnosticsActivity (giống SettingsActivity) luôn chạy ở tiến trình
+        // mặc định bất kể người dùng mở từ hồ sơ nào (Activity không khai báo
+        // android:process riêng) - nên PHẢI dùng profileId truyền qua Intent
+        // từ MainActivity/SettingsActivity, không tự đọc ProfileHolder ở đây.
+        val profileId = intent.getStringExtra(EXTRA_PROFILE_ID) ?: ProfileHolder.currentProfileId
         val webViewVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 WebView.getCurrentWebViewPackage()?.let { "${it.packageName} ${it.versionName}" }
@@ -47,8 +50,8 @@ class DiagnosticsActivity : AppCompatActivity() {
             appendLine("Thiết bị        : ${Build.MANUFACTURER} ${Build.MODEL}")
             appendLine("WebView         : $webViewVersion")
             appendLine()
-            appendLine("Tiến trình      : $processName")
-            appendLine("Hồ sơ hiện tại  : ${ProfileHolder.displayName(profileId)} ($profileId)")
+            appendLine("Tiến trình      : $actualProcessName (màn Chẩn đoán luôn ở tiến trình mặc định)")
+            appendLine("Hồ sơ đang xem  : ${ProfileHolder.displayName(profileId)} ($profileId)")
             appendLine()
             if (tabCount >= 0) {
                 appendLine("Số tab đang mở  : $tabCount")
@@ -65,5 +68,6 @@ class DiagnosticsActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_TAB_COUNT = "extra_tab_count"
         const val EXTRA_CURRENT_URL = "extra_current_url"
+        const val EXTRA_PROFILE_ID = "extra_profile_id"
     }
 }

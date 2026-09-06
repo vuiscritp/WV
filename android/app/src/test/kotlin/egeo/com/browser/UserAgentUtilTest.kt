@@ -41,7 +41,7 @@ class SearchEngineTest {
     }
 
     @Test
-    fun `byId resolves coccoc`() {
-        assertEquals(SearchEngine.CocCoc, searchEngineById("coccoc"))
+    fun `byId resolves duckduckgo`() {
+        assertEquals(SearchEngine.DuckDuckGo, searchEngineById("duckduckgo"))
     }
 }

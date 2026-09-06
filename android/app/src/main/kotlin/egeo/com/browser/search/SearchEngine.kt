@@ -31,12 +31,6 @@ sealed class SearchEngine(val id: String, val displayName: String, private val q
         queryUrlTemplate = "https://www.bing.com/search?q=$QUERY_PLACEHOLDER"
     )
 
-    object CocCoc : SearchEngine(
-        id = "coccoc",
-        displayName = "Cốc Cốc",
-        queryUrlTemplate = "https://coccoc.com/search?query=$QUERY_PLACEHOLDER"
-    )
-
     object DuckDuckGo : SearchEngine(
         id = "duckduckgo",
         displayName = "DuckDuckGo",
@@ -47,7 +41,6 @@ sealed class SearchEngine(val id: String, val displayName: String, private val q
 val ALL_SEARCH_ENGINES: List<SearchEngine> = listOf(
     SearchEngine.Google,
     SearchEngine.Bing,
-    SearchEngine.CocCoc,
     SearchEngine.DuckDuckGo
 )
 

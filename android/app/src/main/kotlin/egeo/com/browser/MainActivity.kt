@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Bundle
@@ -34,8 +33,6 @@ import egeo.com.browser.databinding.ItemTabChipBinding
 import egeo.com.browser.search.searchEngineById
 import egeo.com.browser.tabs.BrowserTab
 import egeo.com.browser.tabs.TabManager
-import egeo.com.browser.theme.ThemeManager
-import egeo.com.browser.theme.ThemeMode
 import egeo.com.browser.util.UserAgentUtil
 
 open class MainActivity : AppCompatActivity() {
@@ -46,7 +43,6 @@ open class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var tabManager: TabManager
-    private var appliedThemeAtCreate: ThemeMode = ThemeMode.DAY
 
     private val recordAudioLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -67,8 +63,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        appliedThemeAtCreate = ThemeManager.resolveEffectiveTheme(this)
-        setTheme(ThemeManager.resolveStyleRes(this))
+        setTheme(R.style.Theme_Egeo)
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -84,35 +79,15 @@ open class MainActivity : AppCompatActivity() {
         setupNavigationButtons()
         setupBackNavigation()
         requestStartupPermissionsIfNeeded()
+        egeo.com.browser.api.BrowserApiBridge.attach(this)
 
-        // Dùng tabCount thay vì savedInstanceState == null: sau khi recreate()
-        // (đổi theme trong Cài đặt) toàn bộ tab cũ đã bị huỷ ở onDestroy(), nên
-        // luôn phải đảm bảo có ít nhất 1 tab, kể cả khi Android coi đây là
-        // "khôi phục" activity (savedInstanceState != null).
         if (tabManager.tabCount == 0) {
             openNewTab()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        val current = ThemeManager.resolveEffectiveTheme(this)
-        if (current != appliedThemeAtCreate) {
-            recreate()
-        }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        if (ThemeManager.getMode(this) == ThemeMode.SYSTEM) {
-            val current = ThemeManager.resolveEffectiveTheme(this)
-            if (current != appliedThemeAtCreate) {
-                recreate()
-            }
-        }
-    }
-
     override fun onDestroy() {
+        egeo.com.browser.api.BrowserApiBridge.detach(this)
         tabManager.destroyAll()
         super.onDestroy()
     }
@@ -145,6 +120,10 @@ open class MainActivity : AppCompatActivity() {
         renderTabStrip()
         bindCurrentTabToUi()
         binding.btnTabCount.text = tabManager.tabCount.toString()
+        egeo.com.browser.api.ApiEventBus.emit(
+            "tabs_changed",
+            org.json.JSONObject().put("tab_count", tabManager.tabCount)
+        )
     }
 
     private fun bindCurrentTabToUi() {
@@ -246,6 +225,10 @@ open class MainActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.VISIBLE
                     binding.progressBar.progress = 0
                 }
+                egeo.com.browser.api.ApiEventBus.emit(
+                    "navigation_started",
+                    org.json.JSONObject().put("tab_id", tab.id).put("url", url.orEmpty())
+                )
             }
 
             override fun onPageFinished(view: WebView, url: String?) {
@@ -253,10 +236,6 @@ open class MainActivity : AppCompatActivity() {
                 val tab = tabManager.allTabs().find { it.webView === view } ?: return
                 tab.url = url.orEmpty()
                 tab.title = view.title?.takeIf { it.isNotBlank() } ?: tab.url
-
-                if (tab.isHomePage && tab.url.startsWith(HOME_URL)) {
-                    applyThemeToHomePage(view)
-                }
 
                 if (isCurrentTab(tab)) {
                     binding.progressBar.visibility = View.GONE
@@ -266,6 +245,10 @@ open class MainActivity : AppCompatActivity() {
                     updateNavButtonsState()
                 }
                 renderTabStrip()
+                egeo.com.browser.api.ApiEventBus.emit(
+                    "navigation_finished",
+                    org.json.JSONObject().put("tab_id", tab.id).put("url", tab.url).put("title", tab.title)
+                )
             }
 
             override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler, error: SslError?) {
@@ -309,14 +292,6 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Đẩy theme hiện tại (morning/day/night/midnight) vào trang chủ, để UI web
-     * đồng bộ với giao diện native thay vì chỉ theo sáng/tối hệ thống. */
-    private fun applyThemeToHomePage(webView: WebView) {
-        val themeName = ThemeManager.resolveEffectiveTheme(this).name.lowercase()
-        val js = "window.EgeoHome && window.EgeoHome.setTheme && window.EgeoHome.setTheme('$themeName');"
-        webView.evaluateJavascript(js, null)
-    }
-
     private fun isCurrentTab(tab: BrowserTab): Boolean = tabManager.currentTab?.id == tab.id
 
     // ---------------------------------------------------------------------
@@ -333,11 +308,7 @@ open class MainActivity : AppCompatActivity() {
                 false
             }
         }
-        binding.btnSearchLead.setOnClickListener { binding.editAddress.requestFocus() }
         binding.btnMic.setOnClickListener { startNativeVoiceSearch() }
-        binding.btnScan.setOnClickListener {
-            Toast.makeText(this, R.string.scan_coming_soon, Toast.LENGTH_SHORT).show()
-        }
         binding.btnNewTabTop.setOnClickListener { openNewTab() }
         binding.btnOverflow.setOnClickListener { showOverflowMenu(it) }
     }
@@ -451,6 +422,61 @@ open class MainActivity : AppCompatActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
             .putExtra(DiagnosticsActivity.EXTRA_TAB_COUNT, tabManager.tabCount)
             .putExtra(DiagnosticsActivity.EXTRA_CURRENT_URL, tabManager.currentTab?.url.orEmpty())
+            .putExtra(SettingsActivity.EXTRA_PROFILE_ID, egeo.com.browser.profile.ProfileHolder.currentProfileId)
         startActivity(intent)
+    }
+
+    // ---------------------------------------------------------------------
+    // Local API (Phần 3) - gọi từ BrowserApiBridge, LUÔN chạy trên main thread
+    // (BrowserApiBridge.withActivity đã post qua MainThreadBridge trước khi
+    // gọi các hàm này, nên ở đây có thể đụng thẳng vào TabManager/WebView).
+    // ---------------------------------------------------------------------
+
+    fun apiTabCount(): Int = tabManager.tabCount
+
+    fun apiListTabs(): org.json.JSONArray {
+        val arr = org.json.JSONArray()
+        tabManager.allTabs().forEach { tab ->
+            arr.put(
+                org.json.JSONObject()
+                    .put("id", tab.id)
+                    .put("title", if (tab.isHomePage) "Trang mới" else tab.title)
+                    .put("url", if (tab.isHomePage) "" else tab.url)
+                    .put("is_home", tab.isHomePage)
+                    .put("is_current", isCurrentTab(tab))
+            )
+        }
+        return arr
+    }
+
+    fun apiCreateTab(): org.json.JSONObject {
+        openNewTab()
+        val tab = tabManager.currentTab
+        return org.json.JSONObject()
+            .put("id", tab?.id ?: -1)
+            .put("title", "Trang mới")
+            .put("is_home", true)
+    }
+
+    fun apiCloseTab(tabId: Long): Boolean {
+        val index = tabManager.allTabs().indexOfFirst { it.id == tabId }
+        if (index == -1) return false
+        tabManager.closeTab(index)
+        if (tabManager.tabCount == 0) openNewTab()
+        return true
+    }
+
+    fun apiSwitchTab(tabId: Long): Boolean {
+        val index = tabManager.allTabs().indexOfFirst { it.id == tabId }
+        if (index == -1) return false
+        tabManager.switchTo(index)
+        return true
+    }
+
+    fun apiNavigateTab(tabId: Long, url: String): Boolean {
+        val tab = tabManager.allTabs().find { it.id == tabId } ?: return false
+        tab.isHomePage = false
+        tab.webView.loadUrl(normalizeUrl(url))
+        return true
     }
 }

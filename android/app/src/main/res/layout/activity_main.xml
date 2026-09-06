@@ -6,96 +6,11 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-    <!-- Thanh địa chỉ: gọn trong 1 hàng, giống Cốc Cốc/Chrome -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorPrimary"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:gravity="center_vertical">
-
-        <ImageButton
-            android:id="@+id/btnSearchLead"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_go"
-            android:src="@android:drawable/ic_menu_search"
-            android:scaleType="centerInside"
-            android:padding="7dp"
-            app:tint="@android:color/white" />
-
-        <EditText
-            android:id="@+id/editAddress"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:background="@drawable/bg_address_pill"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:singleLine="true"
-            android:inputType="textUri"
-            android:imeOptions="actionGo"
-            android:hint="@string/hint_address_bar"
-            android:textSize="14.5sp"
-            android:textColor="@android:color/black"
-            android:textColorHint="#888888" />
-
-        <ImageButton
-            android:id="@+id/btnMic"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="2dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_voice_search"
-            android:src="@android:drawable/ic_btn_speak_now"
-            android:scaleType="centerInside"
-            android:padding="7dp"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnScan"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_scan"
-            android:src="@android:drawable/ic_menu_camera"
-            android:scaleType="centerInside"
-            android:padding="7dp"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnNewTabTop"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_new_tab"
-            android:src="@android:drawable/ic_menu_add"
-            android:scaleType="centerInside"
-            android:padding="7dp"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnOverflow"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_more"
-            android:src="@drawable/ic_overflow"
-            android:scaleType="centerInside"
-            android:padding="7dp" />
-    </LinearLayout>
-
-    <!-- Thanh tab: cuộn ngang, mỗi tab là 1 chip có nút đóng -->
+    <!-- Thanh tab: cuộn ngang, mỗi tab là 1 chip có icon vuông + nút đóng -->
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:background="?attr/colorPrimaryVariant"
+        android:layout_height="40dp"
+        android:background="?attr/chromeBackground"
         android:scrollbars="none">
 
         <LinearLayout
@@ -105,8 +20,106 @@
             android:orientation="horizontal"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
+            android:paddingTop="6dp"
             android:gravity="center_vertical" />
     </HorizontalScrollView>
+
+    <!-- Thanh địa chỉ: gọn trong 1 hàng -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/chromeBackground"
+        android:paddingStart="8dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="10dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_back"
+            android:src="@android:drawable/ic_media_previous"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+
+        <ImageButton
+            android:id="@+id/btnForward"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_forward"
+            android:src="@android:drawable/ic_media_next"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+
+        <ImageButton
+            android:id="@+id/btnReload"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_reload"
+            android:src="@android:drawable/ic_menu_rotate"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+
+        <EditText
+            android:id="@+id/editAddress"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_address_pill"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:singleLine="true"
+            android:inputType="textUri"
+            android:imeOptions="actionGo"
+            android:hint="@string/hint_address_bar"
+            android:textSize="13.5sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?attr/iconMuted" />
+
+        <ImageButton
+            android:id="@+id/btnMic"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_voice_search"
+            android:src="@android:drawable/ic_btn_speak_now"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+
+        <ImageButton
+            android:id="@+id/btnNewTabTop"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_new_tab"
+            android:src="@android:drawable/ic_menu_add"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+
+        <ImageButton
+            android:id="@+id/btnOverflow"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/action_more"
+            android:src="@drawable/ic_overflow"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            app:tint="?attr/iconMuted" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -122,55 +135,28 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Thanh điều hướng dưới -->
+    <!-- Thanh điều hướng dưới: bỏ back/forward/reload (đã chuyển lên trên
+         cạnh ô địa chỉ, giống mockup) - chỉ giữ số tab + tab mới -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="?attr/colorSurface"
+        android:background="?attr/chromeBackground"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:weightSum="5">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="44dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_back"
-            android:src="@android:drawable/ic_media_previous"
-            app:tint="?android:attr/textColorPrimary" />
-
-        <ImageButton
-            android:id="@+id/btnForward"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="44dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_forward"
-            android:src="@android:drawable/ic_media_next"
-            app:tint="?android:attr/textColorPrimary" />
-
-        <ImageButton
-            android:id="@+id/btnReload"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="44dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/action_reload"
-            android:src="@android:drawable/ic_menu_rotate"
-            app:tint="?android:attr/textColorPrimary" />
+        android:gravity="center_vertical"
+        android:weightSum="2">
 
         <TextView
             android:id="@+id/btnTabCount"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="26dp"
-            android:layout_gravity="center_vertical"
+            android:layout_height="30dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="12dp"
             android:gravity="center"
             android:background="@drawable/bg_tab_count"
-            android:textSize="12sp"
+            android:textSize="12.5sp"
             android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary"
             android:text="1" />
@@ -179,11 +165,13 @@
             android:id="@+id/btnNewTabBottom"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="44dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="24dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/action_new_tab"
             android:src="@android:drawable/ic_menu_add"
-            app:tint="?android:attr/textColorPrimary" />
+            app:tint="?attr/iconMuted" />
 
     </LinearLayout>
 

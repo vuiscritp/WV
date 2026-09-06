@@ -7,6 +7,10 @@ import egeo.com.browser.MainActivity
 import egeo.com.browser.MainActivityP1
 import egeo.com.browser.MainActivityP2
 import egeo.com.browser.MainActivityP3
+import egeo.com.browser.api.ApiServerService
+import egeo.com.browser.api.ApiServerServiceP1
+import egeo.com.browser.api.ApiServerServiceP2
+import egeo.com.browser.api.ApiServerServiceP3
 
 object ProfileManager {
 
@@ -33,5 +37,15 @@ object ProfileManager {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         context.startActivity(intent)
+    }
+
+    /** Class Service Local-API tương ứng với hồ sơ - mỗi hồ sơ 1 tiến trình riêng
+     * nên cần đúng Service khai báo android:process khớp mới điều khiển được
+     * đúng tab đang mở ở hồ sơ đó. */
+    fun apiServiceClassFor(profileId: String): Class<out ApiServerService> = when (profileId) {
+        "p1" -> ApiServerServiceP1::class.java
+        "p2" -> ApiServerServiceP2::class.java
+        "p3" -> ApiServerServiceP3::class.java
+        else -> ApiServerService::class.java
     }
 }

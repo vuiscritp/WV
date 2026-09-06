@@ -5,14 +5,19 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Dùng cho tìm kiếm bằng giọng nói (Web Speech API trong WebView) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Dùng cho Local API chạy nền (Phần 3) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".EgeoApplication"
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Egeo.Day"
+        android:theme="@style/Theme.Egeo"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Hồ sơ Mặc định: tiến trình chính của app, là launcher -->
@@ -66,6 +71,28 @@
             android:exported="false"
             android:label="@string/diagnostics_title"
             android:parentActivityName=".SettingsActivity" />
+
+        <!-- Local API (Phần 3): 4 service, mỗi hồ sơ 1 tiến trình riêng khớp
+             với Activity của hồ sơ đó, để điều khiển đúng tab đang mở. -->
+        <service
+            android:name=".api.ApiServerService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".api.ApiServerServiceP1"
+            android:exported="false"
+            android:process=":p1"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".api.ApiServerServiceP2"
+            android:exported="false"
+            android:process=":p2"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".api.ApiServerServiceP3"
+            android:exported="false"
+            android:process=":p3"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

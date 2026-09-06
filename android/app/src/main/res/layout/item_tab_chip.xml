@@ -1,36 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/tabChipRoot"
     android:layout_width="wrap_content"
-    android:layout_height="32dp"
+    android:layout_height="30dp"
     android:layout_marginEnd="6dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_tab_chip"
-    android:paddingStart="12dp"
-    android:paddingEnd="4dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="6dp"
     android:clickable="true"
     android:focusable="true">
+
+    <TextView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:background="@drawable/bg_tab_icon_badge"
+        android:gravity="center"
+        android:text="E"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/tabTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="110dp"
+        android:layout_marginStart="6dp"
+        android:maxWidth="100dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textSize="12.5sp"
+        android:textSize="12sp"
         android:textColor="?android:attr/textColorPrimary" />
 
     <ImageButton
         android:id="@+id/tabClose"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:layout_marginStart="4dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/action_close_tab"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:scaleType="centerInside"
-        android:padding="4dp" />
+        android:padding="4dp"
+        app:tint="?attr/iconMuted" />
 
 </LinearLayout>

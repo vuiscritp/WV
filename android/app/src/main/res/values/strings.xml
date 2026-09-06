@@ -18,6 +18,23 @@
     <string name="voice_prompt">Nói để tìm kiếm…</string>
     <string name="voice_not_supported">Thiết bị này không hỗ trợ nhận dạng giọng nói.</string>
     <string name="tabs_dialog_title">Chọn tab</string>
+
+    <string name="section_local_api">Local API (nâng cao)</string>
+    <string name="section_browsing">Tìm kiếm &amp; trình duyệt</string>
+    <string name="action_enable_api_server">Bật Local API (chạy nền)</string>
+    <string name="label_api_port">Cổng (mặc định 8888)</string>
+    <string name="action_create_api_key">Tạo API key mới</string>
+    <string name="action_manage_api_keys">Xem / thu hồi API key</string>
+    <string name="api_notification_title">Egeo Local API đang chạy</string>
+    <string name="api_notification_text">Đang lắng nghe ở 127.0.0.1:%1$d</string>
+    <string name="api_notification_channel_name">Egeo Local API</string>
+    <string name="dialog_new_api_key_title">Tên cho API key này</string>
+    <string name="dialog_new_api_key_hint">Ví dụ: máy tính test, script automation…</string>
+    <string name="dialog_new_api_key_created">Đã tạo khóa mới (hạn 30 ngày). LƯU LẠI NGAY - sẽ không hiện lại đầy đủ:\n\n%1$s</string>
+    <string name="dialog_manage_keys_title">API key hiện có (bấm để thu hồi)</string>
+    <string name="no_api_keys_yet">Chưa có API key nào.</string>
+    <string name="api_key_revoked">Đã thu hồi API key.</string>
+    <string name="invalid_port">Cổng không hợp lệ (1024-65535).</string>
     <string name="diagnostics_title">Chẩn đoán</string>
     <string name="label_profile">Hồ sơ hiện tại</string>
     <string name="action_switch_profile">Chuyển hồ sơ</string>
@@ -28,56 +45,18 @@
     <string name="profile_secondary_unsupported">Hồ sơ phụ cần Android 9 trở lên. Thiết bị này chỉ dùng được hồ sơ Mặc định.</string>
     <string name="already_on_this_profile">Bạn đang ở hồ sơ này rồi.</string>
 
-    <string name="label_theme_mode">Chế độ giao diện</string>
-    <string name="label_light_variant">Biến thể sáng</string>
-    <string name="label_dark_variant">Biến thể tối</string>
     <string name="label_search_engine">Công cụ tìm kiếm</string>
     <string name="label_custom_ua">User-Agent tùy chỉnh (để trống dùng mặc định đã bỏ \"wv\")</string>
     <string name="action_save">Lưu</string>
 
-    <string-array name="theme_mode_entries">
-        <item>Theo hệ thống</item>
-        <item>Morning</item>
-        <item>Day</item>
-        <item>Night</item>
-        <item>Midnight</item>
-    </string-array>
-    <string-array name="theme_mode_values">
-        <item>SYSTEM</item>
-        <item>MORNING</item>
-        <item>DAY</item>
-        <item>NIGHT</item>
-        <item>MIDNIGHT</item>
-    </string-array>
-
-    <string-array name="light_variant_entries">
-        <item>Morning</item>
-        <item>Day</item>
-    </string-array>
-    <string-array name="light_variant_values">
-        <item>MORNING</item>
-        <item>DAY</item>
-    </string-array>
-
-    <string-array name="dark_variant_entries">
-        <item>Night</item>
-        <item>Midnight</item>
-    </string-array>
-    <string-array name="dark_variant_values">
-        <item>NIGHT</item>
-        <item>MIDNIGHT</item>
-    </string-array>
-
     <string-array name="search_engine_entries">
         <item>Google</item>
         <item>Bing</item>
-        <item>Cốc Cốc</item>
         <item>DuckDuckGo</item>
     </string-array>
     <string-array name="search_engine_values">
         <item>google</item>
         <item>bing</item>
-        <item>coccoc</item>
         <item>duckduckgo</item>
     </string-array>
 </resources>

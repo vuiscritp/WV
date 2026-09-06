@@ -3,6 +3,23 @@
 Trình duyệt Android dùng WebView, giao diện lấy cảm hứng màu sắc cam/đỏ/cam-đỏ
 (thiết kế nguyên bản, không dùng lại asset/code của bất kỳ sản phẩm nào khác).
 
+## Trạng thái: Phase 3 — Local API (REST + WebSocket)
+
+- **Server local**: nhúng NanoHTTPD, chỉ nghe ở `127.0.0.1` (không truy cập
+  được từ LAN - chặn ở cấp socket, không phải chỉ kiểm tra logic), cổng chỉnh
+  được trong Cài đặt (mặc định 8888).
+- **Xác thực**: mọi endpoint REST yêu cầu header `Authorization: Bearer <key>`.
+  API key tạo/thu hồi trong Cài đặt, có hạn dùng (mặc định 30 ngày), lưu riêng
+  theo từng hồ sơ.
+- **REST**: `GET /api/v1/status`, `GET/POST/DELETE /api/v1/tabs`,
+  `POST /api/v1/tabs/switch`, `POST /api/v1/tabs/navigate`,
+  `GET /api/v1/profiles`.
+- **WebSocket**: `GET /api/v1/ws?key=<api_key>` (nâng cấp WS trên cùng cổng),
+  phát sự kiện `tabs_changed`, `navigation_started`, `navigation_finished`.
+- **Chạy nền thật**: server chạy trong foreground service (thông báo
+  persistent), tiếp tục hoạt động khi màn hình tắt/app xuống nền. Mỗi hồ sơ có
+  service riêng ở đúng tiến trình của hồ sơ đó.
+
 ## Trạng thái: Phase 2 — Đa tab & đa hồ sơ
 
 Kế thừa toàn bộ Phase 1, cộng thêm:
@@ -90,6 +107,14 @@ Push code lên nhánh `main` (hoặc mở Pull Request) → workflow
    kiểm tra pipeline — phase sau mới thêm ký release bằng GitHub Secrets).
 4. Upload 2 APK làm artifact của run, vào tab **Actions** → chọn run → mục
    **Artifacts** để tải về cài thử.
+
+## Ghi chú giao diện
+
+App dùng **1 giao diện tối cố định** (không còn hệ thống chọn theme/biến thể
+sáng-tối) — khớp với thiết kế mockup do người dùng cung cấp. Trang chủ
+(`assets/home.html`) có panel tuỳ chỉnh riêng (ảnh nền, ẩn/hiện Truy cập
+nhanh, độ tối lớp phủ), lưu bằng `localStorage` trong WebView (tự tách theo
+từng hồ sơ vì mỗi hồ sơ có bộ nhớ WebView riêng).
 
 ## Ghi chú bản quyền
 

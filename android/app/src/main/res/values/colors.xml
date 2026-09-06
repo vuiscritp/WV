@@ -1,41 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Morning: nền sáng ấm, cam nhạt -->
-    <color name="morning_background">#FFF3E0</color>
-    <color name="morning_surface">#FFFFFF</color>
-    <color name="morning_primary">#FF7043</color>
-    <color name="morning_primary_variant">#F4511E</color>
-    <color name="morning_accent">#FF8A50</color>
-    <color name="morning_text_primary">#3E2412</color>
-    <color name="morning_text_secondary">#6D4C34</color>
+    <!-- Giao diện tối cố định duy nhất, khớp mockup (Chrome/Cốc Cốc dark) -->
+    <color name="app_background">#1A1A1A</color>
+    <color name="app_surface">#202124</color>
+    <color name="app_primary">#FF5A36</color>
+    <color name="app_primary_variant">#E1471F</color>
+    <color name="app_accent">#FF8A50</color>
+    <color name="app_text_primary">#F1F3F4</color>
+    <color name="app_text_secondary">#9AA0A6</color>
 
-    <!-- Day: nền trắng, accent cam-đỏ chuẩn thương hiệu -->
-    <color name="day_background">#FFFFFF</color>
-    <color name="day_surface">#FFF8F5</color>
-    <color name="day_primary">#FF5722</color>
-    <color name="day_primary_variant">#E64A19</color>
-    <color name="day_accent">#FF3D00</color>
-    <color name="day_text_primary">#212121</color>
-    <color name="day_text_secondary">#5F5F5F</color>
+    <color name="app_chrome_bg">#202124</color>
+    <color name="app_address_bg">#2B2E31</color>
+    <color name="app_address_border">#3C3F42</color>
+    <color name="app_icon_muted">#9AA0A6</color>
 
-    <!-- Night: nền xám đậm ấm, giảm chói -->
-    <color name="night_background">#1E1512</color>
-    <color name="night_surface">#2A1E19</color>
-    <color name="night_primary">#FF8A50</color>
-    <color name="night_primary_variant">#FF7043</color>
-    <color name="night_accent">#FFAB7A</color>
-    <color name="night_text_primary">#F5E9E0</color>
-    <color name="night_text_secondary">#D8C3B5</color>
-
-    <!-- Midnight: nền đen thuần OLED, accent đỏ-cam đậm -->
-    <color name="midnight_background">#000000</color>
-    <color name="midnight_surface">#140A07</color>
-    <color name="midnight_primary">#FF5A36</color>
-    <color name="midnight_primary_variant">#E1471F</color>
-    <color name="midnight_accent">#FF7A4D</color>
-    <color name="midnight_text_primary">#F0E4DC</color>
-    <color name="midnight_text_secondary">#B8A79C</color>
+    <!-- Gradient cam thương hiệu, dùng cho nút/logo/tab-icon -->
+    <color name="brand_orange_start">#FF7B25</color>
+    <color name="brand_orange_end">#F95716</color>
+    <color name="tab_icon_orange">#F97316</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

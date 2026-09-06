@@ -212,6 +212,41 @@ open class MainActivity : AppCompatActivity() {
                 override fun onBridgeOpenSettings() {
                     runOnUiThread { openSettingsScreen() }
                 }
+
+                override fun onBridgeNewTab() {
+                    runOnUiThread { openNewTab() }
+                }
+
+                override fun onBridgeCloseTab() {
+                    runOnUiThread {
+                        tabManager.closeCurrentTab()
+                        if (tabManager.tabCount == 0) openNewTab()
+                    }
+                }
+
+                override fun onBridgeHistory() {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, R.string.toast_history_empty, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onBridgeDownloads() {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, R.string.toast_downloads_empty, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onBridgeBookmarks() {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, R.string.toast_bookmarks_empty, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onBridgeReload() {
+                    runOnUiThread {
+                        tabManager.currentTab?.webView?.reload()
+                    }
+                }
             }),
             "AndroidBridge"
         )
@@ -326,15 +361,41 @@ open class MainActivity : AppCompatActivity() {
 
     private fun showOverflowMenu(anchor: View) {
         val popup = PopupMenu(this, anchor)
-        popup.menu.add(0, 1, 0, R.string.action_settings)
-        popup.menu.add(0, 2, 1, R.string.action_close_tab)
+        // Menu giống thiết kế HTML: đầy đủ hành động trình duyệt
+        popup.menu.add(0, 10, 0, R.string.action_new_tab)
+        popup.menu.add(0, 11, 1, R.string.action_new_window)
+        popup.menu.add(0, 12, 2, R.string.action_history)
+        popup.menu.add(0, 13, 3, R.string.action_downloads)
+        popup.menu.add(0, 14, 4, R.string.action_bookmarks)
+        popup.menu.add(0, 15, 5, R.string.action_zoom)
+        popup.menu.add(0, 16, 6, R.string.action_settings)
+        popup.menu.add(0, 17, 7, R.string.action_close_tab)
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                1 -> {
-                    openSettingsScreen()
+                10 -> { openNewTab(); true }
+                11 -> {
+                    openNewTab()
+                    Toast.makeText(this, R.string.toast_new_window, Toast.LENGTH_SHORT).show()
                     true
                 }
-                2 -> {
+                12 -> {
+                    Toast.makeText(this, R.string.toast_history_empty, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                13 -> {
+                    Toast.makeText(this, R.string.toast_downloads_empty, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                14 -> {
+                    Toast.makeText(this, R.string.toast_bookmarks_empty, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                15 -> {
+                    Toast.makeText(this, R.string.toast_zoom, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                16 -> { openSettingsScreen(); true }
+                17 -> {
                     tabManager.closeCurrentTab()
                     if (tabManager.tabCount == 0) openNewTab()
                     true

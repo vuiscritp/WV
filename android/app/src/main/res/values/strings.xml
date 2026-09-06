@@ -8,9 +8,14 @@
     <string name="action_back">Quay lại</string>
     <string name="action_forward">Tiến tới</string>
     <string name="action_reload">Tải lại</string>
-    <string name="action_settings">Cài đặt</string>
-    <string name="action_new_tab">Tab mới</string>
+    <string name="action_settings">Cài đặt &amp; Tùy chỉnh</string>
+    <string name="action_new_tab">Thẻ mới</string>
+    <string name="action_new_window">Cửa sổ mới</string>
     <string name="action_close_tab">Đóng tab</string>
+    <string name="action_history">Nhật ký truy cập</string>
+    <string name="action_downloads">Tệp đã tải xuống</string>
+    <string name="action_bookmarks">Dấu trang</string>
+    <string name="action_zoom">Thu phóng</string>
     <string name="action_voice_search">Tìm bằng giọng nói</string>
     <string name="action_scan">Quét mã</string>
     <string name="action_more">Thêm</string>
@@ -18,6 +23,11 @@
     <string name="voice_prompt">Nói để tìm kiếm…</string>
     <string name="voice_not_supported">Thiết bị này không hỗ trợ nhận dạng giọng nói.</string>
     <string name="tabs_dialog_title">Chọn tab</string>
+    <string name="toast_history_empty">Chưa có lịch sử duyệt gần đây</string>
+    <string name="toast_downloads_empty">Không có tệp đang tải xuống</string>
+    <string name="toast_bookmarks_empty">Chưa có dấu trang nào</string>
+    <string name="toast_new_window">Đã mở thẻ mới (cửa sổ mới sẽ có ở phase sau)</string>
+    <string name="toast_zoom">Thu phóng: dùng cử chỉ chạm để phóng to/thu nhỏ trang</string>
 
     <string name="section_local_api">Local API (nâng cao)</string>
     <string name="section_browsing">Tìm kiếm &amp; trình duyệt</string>

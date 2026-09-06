@@ -1357,6 +1357,39 @@
     // --- Helper Toast Notification ---
     const toast = document.getElementById('toast');
     let toastTimeout;
+    
+    // --- Android bridge helpers ---
+    function hasAndroidBridge() {
+      return typeof AndroidBridge !== "undefined" && AndroidBridge !== null;
+    }
+    function bridgeCall(fn) {
+      try {
+        if (hasAndroidBridge() && typeof AndroidBridge[fn] === "function") {
+          AndroidBridge[fn]();
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+    function bridgeOpenUrl(url) {
+      try {
+        if (hasAndroidBridge() && typeof AndroidBridge.openUrl === "function") {
+          AndroidBridge.openUrl(url);
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+    function bridgeSearch(q) {
+      try {
+        if (hasAndroidBridge() && typeof AndroidBridge.search === "function") {
+          AndroidBridge.search(q);
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add('show');
@@ -1430,33 +1463,36 @@
 
     // Menu Item Actions
     document.getElementById('menuNewTab').addEventListener('click', () => {
-      addTabBtn.click();
       chromeMenu.classList.remove('show');
+      if (!bridgeCall('newTab')) { addTabBtn.click(); showToast('Đã mở thẻ mới'); }
     });
 
     document.getElementById('menuNewWin').addEventListener('click', () => {
-      window.open(window.location.href, '_blank');
       chromeMenu.classList.remove('show');
+      if (!bridgeCall('newTab')) { showToast('Đã mở thẻ mới'); }
     });
 
     document.getElementById('menuHistory').addEventListener('click', () => {
-      showToast('Đang mở Nhật ký truy cập...');
       chromeMenu.classList.remove('show');
+      if (!bridgeCall('openHistory')) showToast('Đang mở Nhật ký truy cập...');
     });
 
     document.getElementById('menuDownloads').addEventListener('click', () => {
-      showToast('Không có tệp nào gần đây');
       chromeMenu.classList.remove('show');
+      if (!bridgeCall('openDownloads')) showToast('Không có tệp nào gần đây');
     });
 
     document.getElementById('menuBookmarks').addEventListener('click', () => {
-      showToast('Danh sách dấu trang của bạn');
       chromeMenu.classList.remove('show');
+      if (!bridgeCall('openBookmarks')) showToast('Danh sách dấu trang của bạn');
     });
 
     document.getElementById('menuSettings').addEventListener('click', () => {
       chromeMenu.classList.remove('show');
-      document.getElementById('customizePanel').classList.add('open');
+      // Ưu tiên mở Cài đặt native; fallback panel tùy chỉnh trong HTML
+      if (!bridgeCall('openSettings')) {
+        document.getElementById('customizePanel').classList.add('open');
+      }
     });
 
     // Zoom Controls
@@ -1489,7 +1525,9 @@
     const viewport = document.getElementById('viewport');
 
     openCustomizeBtn.addEventListener('click', () => {
-      customizePanel.classList.add('open');
+      if (!bridgeCall('openSettings')) {
+        customizePanel.classList.add('open');
+      }
     });
 
     closeCustomizeBtn.addEventListener('click', () => {
